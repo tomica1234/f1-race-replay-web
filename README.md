@@ -2,7 +2,7 @@
 
 [FastF1](https://docs.fastf1.dev/) で F1 のセッションデータをダウンロードし、
 **レースリプレイ（コース上の車両アニメーション）＋分析グラフ**を見るための静的 Web アプリです。
-Python で JSON に変換して `site/` に置き、GitHub Pages にそのまま公開します（Pages 側で Python は動きません）。
+Python で JSON に変換して `data/` に置き、GitHub Pages にそのまま公開します（Pages 側で Python は動きません）。
 
 公開先: https://tomica1234.github.io/f1-race-replay-web/
 
@@ -26,15 +26,17 @@ Python で JSON に変換して `site/` に置き、GitHub Pages にそのまま
 ## リポジトリ構成
 
 ```
-build_data.py        # FastF1 → JSON 変換（Python）
-site/
-  index.html         # アプリ本体（依存は vanilla JS / Canvas のみ、CDN 不使用）
-  app.js
-  style.css
-  data/
-    index.json       # セッション一覧（アプリが読み込む）
-    2026-r16-r.json  # 変換済みセッションデータ（約 7.6 MB）
+index.html           # アプリ本体（依存は vanilla JS / Canvas のみ、CDN 不使用）
+app.js
+style.css
+data/
+  index.json         # セッション一覧（アプリが読み込む）
+  2026-r16-r.json    # 変換済みセッションデータ（約 7.6 MB）
+build_data.py        # FastF1 → JSON 変換（Python、Pages 側では動かない）
+.nojekyll            # GitHub Pages の Jekyll 処理を止める（静的ファイルそのまま配信）
 ```
+
+GitHub Pages はリポジトリ直下（`main` ブランチの `/`）を配信しています。Pages の配信元は `/` か `/docs` に限定されるため、アプリのファイルはリポジトリ直下に置いています。
 
 ## データの再生成
 

@@ -5,7 +5,7 @@ Usage:
     python build_data.py --year 2026 --round 16 --session R
     python build_data.py --year 2024 --round 24 --session Q
 
-The output is a fully static payload (site/data/<slug>.json) so the resulting
+The output is a fully static payload (data/<slug>.json) so the resulting
 web app can be hosted on GitHub Pages without any server side code.
 """
 from __future__ import annotations
@@ -529,7 +529,7 @@ def main() -> int:
     ap.add_argument("--round", type=int, required=True)
     ap.add_argument("--session", default="R", help="R / Q / S / SQ / FP1 ...")
     ap.add_argument("--out", default=os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                  "site", "data"))
+                                                  "data"))
     ap.add_argument("--no-index", action="store_true")
     args = ap.parse_args()
     build(args.year, args.round, args.session.upper(), args.out)
