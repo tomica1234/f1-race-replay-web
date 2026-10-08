@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>F1 Race Replay — FastF1 データで見るレースリプレイ</title>
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">F1</span>
+    <span class="brand-text">RACE&nbsp;REPLAY<small>FastF1 → GitHub Pages</small></span>
+  </div>
+  <div class="session-picker">
+    <label for="sessionSelect">セッション</label>
+    <select id="sessionSelect"></select>
+  </div>
+  <div class="event-meta">
+    <div class="event-name" id="eventName">読み込み中…</div>
+    <div class="event-sub" id="eventSub"></div>
+  </div>
+</header>
+
+<main class="layout">
+  <!-- ============================ replay stage ============================ -->
+  <section class="stage panel">
+    <div class="stage-head">
+      <div class="status-badge" id="statusBadge">–</div>
+      <div class="race-clock">
+        <span id="clockLap">Lap –</span>
+        <span id="clockTime">00:00</span>
+        <span class="clock-total" id="clockTotal"></span>
+      </div>
+      <div class="sc-indicator" id="scIndicator" hidden>SAFETY CAR</div>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas id="trackCanvas"></canvas>
+      <div class="hint" id="trackHint">車体をクリック / タップで選択 → 分析タブに反映されます</div>
+    </div>
+
+    <div class="transport">
+      <button id="btnPlay" class="btn btn-primary" title="再生 / 一時停止 (Space)">▶ 再生</button>
+      <div class="speeds" id="speedButtons">
+        <button data-speed="1">1×</button>
+        <button data-speed="4">4×</button>
+        <button data-speed="10" class="active">10×</button>
+        <button data-speed="30">30×</button>
+        <button data-speed="60">60×</button>
+      </div>
+      <input type="range" id="scrub" min="0" max="100" step="0.5" value="0">
+      <div class="jump">
+        <button id="btnRestart" title="先頭へ">⏮</button>
+        <button id="btnPrevLap" title="前の周">⟨ 周</button>
+        <button id="btnNextLap" title="次の周">周 ⟩</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ leaderboard ============================ -->
+  <aside class="leaderboard panel">
+    <div class="panel-title">ライブ順位 <small>累計周回距離ベース（推定）</small></div>
+    <table id="leaderTable">
+      <thead>
+        <tr><th>#</th><th>DRIVER</th><th>TEAM</th><th class="num">GAP</th><th class="num">LAP</th><th>TIRE</th></tr>
+      </thead>
+      <tbody id="leaderBody"></tbody>
+    </table>
+  </aside>
+
+  <!-- ============================ analysis ============================ -->
+  <section class="analysis panel">
+    <nav class="tabs" id="analysisTabs">
+      <button data-tab="lapTimes" class="active">ラップタイム</button>
+      <button data-tab="positions">ポジション</button>
+      <button data-tab="stints">スティント</button>
+      <button data-tab="telemetry">速度 / DRS</button>
+      <button data-tab="control">レースコントロール</button>
+    </nav>
+
+    <div class="picker">
+      <div class="picker-label">対象ドライバー</div>
+      <div class="chips" id="driverChips"></div>
+      <div class="picker-actions">
+        <button id="chipTop">TOP3</button>
+        <button id="chipAll">全選</button>
+        <button id="chipNone">解除</button>
+      </div>
+    </div>
+
+    <div class="chart-wrap" id="chartWrap">
+      <canvas id="chartCanvas"></canvas>
+      <div class="chart-note" id="chartNote"></div>
+    </div>
+    <div class="log-wrap" id="logWrap" hidden>
+      <div class="log-status" id="statusTimeline"></div>
+      <ul id="controlLog"></ul>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <span>データ出典: <a href="https://docs.fastf1.dev/" target="_blank" rel="noopener">FastF1</a>
+  （Formula 1 公式タイミングデータ）。テレメトリの X/Y は計測座標であり GPS ではありません。
+  順位は累計周回距離から復元した推定値です。</span>
+  <span class="build-info" id="buildInfo"></span>
+</footer>
+
+<script src="./app.js"></script>
+</body>
+</html>
