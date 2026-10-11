@@ -1,0 +1,38 @@
+﻿circuit,location,country,firstYear,lastYear,years,events,sessionCount,avgTotalLaps,trackLengthMetersMedian,pitLaneMetersMedian,pitStopsAvgPerRace,fastestLapMsMin,avgAirTempC
+Yas Island,Yas Island,Abu Dhabi,2019,2025,7,7,14,38.86,5227.6,381.3,30.14,82109,25.97
+Melbourne,Melbourne,Australia,2018,2026,7,7,14,40.86,5231.9,411.2,40.57,75096,22.01
+Spielberg,Spielberg,Austria,2018,2026,9,11,26,43.5,4299.0,402.9,36.09,62939,25.71
+Baku,Baku,Azerbaijan,2018,2026,8,8,17,36.0,5951.3,595.8,32.75,100203,22.81
+Kuala Lumpur,Kuala Lumpur,Bahrain,2026,2026,1,1,2,36.5,5471.4,524.0,73.0,95130,29.78
+Sakhir,Sakhir,Bahrain,2018,2025,8,9,18,40.11,5373.2,441.6,45.78,53377,24.3
+Spa-Francorchamps,Spa-Francorchamps,Belgium,2018,2026,9,9,21,27.62,6949.5,409.6,29.78,100510,18.86
+São Paulo,São Paulo,Brazil,2018,2025,7,7,21,39.29,4240.4,807.3,48.71,67281,22.03
+Montréal,Montréal,Canada,2018,2026,7,7,16,45.25,4321.9,839.0,39.14,70240,20.17
+Shanghai,Shanghai,China,2018,2026,5,5,16,30.62,5403.1,646.6,31.8,90641,19.85
+Le Castellet,Le Castellet,France,2018,2022,4,4,8,37.25,5774.4,573.8,24.0,88319,27.01
+Hockenheim,Hockenheim,Germany,2018,2019,2,2,4,43.75,4576.1,,60.0,71212,24.83
+Nürburgring,Nürburgring,Germany,2020,2020,1,1,2,40.0,5116.0,592.4,36.0,85269,9.45
+Silverstone,Silverstone,Great Britain,2018,2026,9,10,23,34.7,5825.9,646.4,37.5,84303,22.17
+Budapest,Budapest,Hungary,2018,2026,9,9,18,45.89,4348.9,378.8,38.22,73447,25.55
+Imola,Imola,Italy,2020,2025,5,5,11,40.73,4881.1,887.5,36.0,73609,18.49
+Monza,Monza,Italy,2018,2026,9,9,18,35.06,5760.0,778.3,29.12,78792,27.94
+Mugello,Mugello,Italy,2020,2020,1,1,2,38.5,5234.8,435.3,67.0,75144,29.77
+Suzuka,Suzuka,Japan,2018,2026,7,7,14,34.64,5779.5,409.1,36.14,86983,20.86
+Mexico City,Mexico City,Mexico,2018,2025,7,7,14,46.0,4243.5,367.2,28.86,74758,22.97
+Monaco,Monaco,Monaco,2022,2025,4,4,8,52.62,3275.2,983.5,39.25,69954,23.23
+Monte Carlo,Monte Carlo,Monaco,2018,2026,4,4,8,54.25,3287.6,425.1,40.0,70166,23.04
+Zandvoort,Zandvoort,Netherlands,2021,2026,6,6,14,44.0,4235.6,803.8,56.67,68662,20.22
+Portimão,Portimão,Portugal,2020,2021,2,2,4,47.5,4629.0,445.3,43.0,76466,19.83
+Lusail,Lusail,Qatar,2021,2025,4,4,13,32.85,5379.2,927.2,47.75,79387,24.16
+Sochi,Sochi,Russia,2018,2021,4,4,8,37.25,5814.9,,28.5,91304,22.53
+Jeddah,Jeddah,Saudi Arabia,2021,2025,5,5,10,37.1,6106.2,399.1,26.8,73670,26.87
+Marina Bay,Marina Bay,Singapore,2022,2026,5,5,11,36.09,4887.3,681.9,24.0,89158,29.23
+Singapore,Singapore,Singapore,2018,2019,2,2,4,40.25,5028.2,440.9,27.0,96015,29.85
+Barcelona,Barcelona,Spain,2018,2026,9,9,18,42.89,4629.3,378.6,42.33,71383,25.91
+Madrid,Madrid,Spain,2026,2026,1,1,2,39.5,5330.8,997.1,28.0,91824,30.69
+Istanbul,Istanbul,Turkey,2020,2021,2,2,4,43.25,5259.7,1080.0,30.5,82868,14.87
+Yas Marina,Yas Marina,United Arab Emirates,2018,2018,1,1,2,37.5,5515.8,,20.0,94794,29.96
+Austin,Austin,United States,2018,2025,7,7,19,32.37,5447.3,608.2,32.43,92029,28.17
+Las Vegas,Las Vegas,United States,2023,2025,3,3,6,37.5,6145.1,617.8,32.33,92312,15.22
+Miami,Miami,United States,2022,2024,3,3,8,34.12,5339.5,745.6,25.67,86814,29.29
+Miami Gardens,Miami Gardens,United States,2025,2026,2,2,8,28.0,5337.4,620.8,21.5,86204,28.86

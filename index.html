@@ -14,7 +14,22 @@
   </div>
   <div class="session-picker">
     <label for="sessionSelect">セッション</label>
-    <select id="sessionSelect"></select>
+    <div class="catalog-nav">
+      <button id="btnPrevSession" title="前のセッション（時系列で遡る）">◀</button>
+      <select id="sessionSelect"></select>
+      <button id="btnNextSession" title="次のセッション（時系列で進む）">▶</button>
+    </div>
+    <div class="catalog-filters">
+      <select id="yearFilter" title="年による絞り込み"></select>
+      <select id="typeFilter" title="セッション種別による絞り込み">
+        <option value="">全種別</option>
+        <option value="R">決勝</option>
+        <option value="S">スプリント</option>
+        <option value="SQ">スプリント予選</option>
+        <option value="Q">予選</option>
+      </select>
+      <span class="catalog-count" id="catalogCount"></span>
+    </div>
   </div>
   <div class="event-meta">
     <div class="event-name" id="eventName">読み込み中…</div>
@@ -38,6 +53,12 @@
     <div class="canvas-wrap">
       <canvas id="trackCanvas"></canvas>
       <div class="hint" id="trackHint">車体をクリック / タップで選択 → 分析タブに反映されます</div>
+      <div class="no-position" id="noPositionNotice" hidden>
+        <strong>このセッションには位置データ（X / Y 座標）がありません</strong>
+        FastF1 が 2018年ラウンド1〜2 の位置情報を保持していないため、コース上の動きは再現できません。
+        順位・ラップタイム・スティント・ピット・テレメトリ（速度 / スロットル / ギア）のデータと、
+        順位表・分析タブ・データ出力はそのまま利用できます。
+      </div>
     </div>
 
     <div class="transport">
@@ -77,6 +98,7 @@
       <button data-tab="stints">スティント</button>
       <button data-tab="telemetry">速度 / DRS</button>
       <button data-tab="control">レースコントロール</button>
+      <button data-tab="export">データ出力</button>
     </nav>
 
     <div class="picker">
@@ -96,6 +118,27 @@
     <div class="log-wrap" id="logWrap" hidden>
       <div class="log-status" id="statusTimeline"></div>
       <ul id="controlLog"></ul>
+    </div>
+
+    <div class="export-wrap" id="exportWrap" hidden>
+      <div class="export-block">
+        <h3>このセッションのデータを書き出す</h3>
+        <p class="export-note">
+          現在読み込んでいるセッションのリプレイデータ（<code id="exportSessionFile"></code>）から、
+          表形式の CSV をその場で生成してダウンロードできます。
+        </p>
+        <div class="export-grid" id="sessionExportButtons"></div>
+      </div>
+      <div class="export-block">
+        <h3>機械学習用の特徴量テーブル（全セッション合本）</h3>
+        <p class="export-note">
+          <code>build_data.py --bulk</code> がセッションごとに出力した特徴量を
+          <code>build_features.py</code> で結合したテーブルです。CSV（UTF-8 BOM 付き）と
+          Parquet（zstd）の両方を用意しています。列の意味は各テーブルの展開できる表に書いてあります。
+        </p>
+        <div class="export-note" id="featuresSummary">読み込み中…</div>
+        <div id="featureTables"></div>
+      </div>
     </div>
   </section>
 </main>

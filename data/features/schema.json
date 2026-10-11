@@ -1,0 +1,2930 @@
+{
+ "generatedAt": "2026-10-11T12:20:26+00:00",
+ "source": "build_data.py feature tables + derived dimension tables",
+ "notes": [
+  "時刻はすべてセッション開始（フォーメーションライトアウト）からの秒。負値は開始前の走行。",
+  "X/Y 座標は GPS ではなく計測システム由来の 1/10 メートル単位。hasPosition=false のセッションには位置データがない。",
+  "isFastF1Generated=true のラップは計測から補間されたもの。isDeleted=true は公式記録から除外されたラップ。",
+  "テレメトリ詳細系列は 2.0 秒間隔、位置系列は 0.5 秒間隔から集計している。"
+ ],
+ "tables": {
+  "driver_session_features": {
+   "label": "ドライバー × セッション（天気・フラグ集計を含む横持ち特徴表）",
+   "description": "機械学習用の主表。セッション文脈（天気・セーフティカー・赤旗）とドライバー行動特徴が同じ行に揃う。",
+   "primaryKey": [
+    "sessionKey",
+    "driverNumber"
+   ],
+   "rowCount": 8562,
+   "columns": [
+    {
+     "name": "sessionKey",
+     "type": "string",
+     "label": "セッションキー",
+     "unit": "全テーブルの外部キー。data/<slug>.json.gz の slug と同一"
+    },
+    {
+     "name": "year",
+     "type": "integer",
+     "label": "年",
+     "unit": "シーズン"
+    },
+    {
+     "name": "round",
+     "type": "integer",
+     "label": "ラウンド番号",
+     "unit": "その年の大会番号"
+    },
+    {
+     "name": "sessionType",
+     "type": "string",
+     "label": "セッション種別",
+     "unit": "R=決勝 / Q=予選 / S=スプリント / SQ=スプリント予選"
+    },
+    {
+     "name": "eventName",
+     "type": "string",
+     "label": "大会公式名称",
+     "unit": "例 FORMULA 1 ... GRAND PRIX"
+    },
+    {
+     "name": "circuit",
+     "type": "string",
+     "label": "コース",
+     "unit": "location と同じ値。次元テーブルのキー"
+    },
+    {
+     "name": "country",
+     "type": "string",
+     "label": "開催国",
+     "unit": ""
+    },
+    {
+     "name": "date",
+     "type": "string",
+     "label": "開催日",
+     "unit": "YYYY-MM-DD"
+    },
+    {
+     "name": "eventFormat",
+     "type": "string",
+     "label": "大会フォーマット",
+     "unit": "conventional / sprint / sprint_qualifying"
+    },
+    {
+     "name": "trackLengthMeters",
+     "type": "number",
+     "label": "1周距離",
+     "unit": "メートル（テレメトリの X/Y から算出。GPS ではない）"
+    },
+    {
+     "name": "totalLaps",
+     "type": "integer",
+     "label": "規定周回数",
+     "unit": "周"
+    },
+    {
+     "name": "sessionDurationSec",
+     "type": "number",
+     "label": "セッション所要時間",
+     "unit": "秒（計測開始から最終サンプルまで）"
+    },
+    {
+     "name": "weatherSamples",
+     "type": "integer",
+     "label": "天気サンプル数",
+     "unit": "件"
+    },
+    {
+     "name": "avgAirTempC",
+     "type": "number",
+     "label": "気温（平均）",
+     "unit": "℃"
+    },
+    {
+     "name": "minAirTempC",
+     "type": "number",
+     "label": "気温（最小）",
+     "unit": "℃"
+    },
+    {
+     "name": "maxAirTempC",
+     "type": "number",
+     "label": "気温（最大）",
+     "unit": "℃"
+    },
+    {
+     "name": "avgTrackTempC",
+     "type": "number",
+     "label": "路面温度（平均）",
+     "unit": "℃"
+    },
+    {
+     "name": "minTrackTempC",
+     "type": "number",
+     "label": "路面温度（最小）",
+     "unit": "℃"
+    },
+    {
+     "name": "maxTrackTempC",
+     "type": "number",
+     "label": "路面温度（最大）",
+     "unit": "℃"
+    },
+    {
+     "name": "avgHumidityPct",
+     "type": "number",
+     "label": "湿度（平均）",
+     "unit": "%"
+    },
+    {
+     "name": "minHumidityPct",
+     "type": "number",
+     "label": "湿度（最小）",
+     "unit": "%"
+    },
+    {
+     "name": "maxHumidityPct",
+     "type": "number",
+     "label": "湿度（最大）",
+     "unit": "%"
+    },
+    {
+     "name": "avgPressureHpa",
+     "type": "number",
+     "label": "気圧（平均）",
+     "unit": "hPa"
+    },
+    {
+     "name": "minPressureHpa",
+     "type": "number",
+     "label": "気圧（最小）",
+     "unit": "hPa"
+    },
+    {
+     "name": "maxPressureHpa",
+     "type": "number",
+     "label": "気圧（最大）",
+     "unit": "hPa"
+    },
+    {
+     "name": "avgWindSpeedMs",
+     "type": "number",
+     "label": "風速（平均）",
+     "unit": "m/s"
+    },
+    {
+     "name": "minWindSpeedMs",
+     "type": "number",
+     "label": "風速（最小）",
+     "unit": "m/s"
+    },
+    {
+     "name": "maxWindSpeedMs",
+     "type": "number",
+     "label": "風速（最大）",
+     "unit": "m/s"
+    },
+    {
+     "name": "rainfallTotalMm",
+     "type": "number",
+     "label": "降雨量の合計",
+     "unit": "mm"
+    },
+    {
+     "name": "rainfallSamples",
+     "type": "integer",
+     "label": "降雨が観測されたサンプル数",
+     "unit": "件"
+    },
+    {
+     "name": "isDry",
+     "type": "boolean",
+     "label": "ドライコンディション",
+     "unit": "降雨サンプルが 0 なら true"
+    },
+    {
+     "name": "yellowFlagEvents",
+     "type": "integer",
+     "label": "イエローフラグ表示回数",
+     "unit": "回"
+    },
+    {
+     "name": "doubleYellowEvents",
+     "type": "integer",
+     "label": "ダブルイエロー表示回数",
+     "unit": "回"
+    },
+    {
+     "name": "safetyCarEvents",
+     "type": "integer",
+     "label": "セーフティカー出動回数",
+     "unit": "回"
+    },
+    {
+     "name": "virtualSafetyCarEvents",
+     "type": "integer",
+     "label": "バーチャルセーフティカー回数",
+     "unit": "回"
+    },
+    {
+     "name": "redFlagEvents",
+     "type": "integer",
+     "label": "赤旗表示回数",
+     "unit": "回"
+    },
+    {
+     "name": "safetyCarSeconds",
+     "type": "number",
+     "label": "セーフティカー走行時間",
+     "unit": "秒"
+    },
+    {
+     "name": "virtualSafetyCarSeconds",
+     "type": "number",
+     "label": "バーチャルセーフティカー時間",
+     "unit": "秒"
+    },
+    {
+     "name": "redFlagSeconds",
+     "type": "number",
+     "label": "赤旗による中断時間",
+     "unit": "秒"
+    },
+    {
+     "name": "driverNumber",
+     "type": "string",
+     "label": "カーナンバー",
+     "unit": "例 44"
+    },
+    {
+     "name": "driver",
+     "type": "string",
+     "label": "ドライバー略称",
+     "unit": "3文字（例 VER）"
+    },
+    {
+     "name": "teamName",
+     "type": "string",
+     "label": "チーム名",
+     "unit": ""
+    },
+    {
+     "name": "teamColor",
+     "type": "string",
+     "label": "チームカラー",
+     "unit": "16進 RGB（# なし）"
+    },
+    {
+     "name": "gridPosition",
+     "type": "number",
+     "label": "スターティンググリッド",
+     "unit": "周回開始時のポジション"
+    },
+    {
+     "name": "finishingPosition",
+     "type": "number",
+     "label": "最終順位",
+     "unit": "公式順位"
+    },
+    {
+     "name": "status",
+     "type": "string",
+     "label": "出走結果",
+     "unit": "Finished / +1L / DNF など公式ステータス"
+    },
+    {
+     "name": "points",
+     "type": "number",
+     "label": "獲得ポイント",
+     "unit": "点"
+    },
+    {
+     "name": "positionsGained",
+     "type": "number",
+     "label": "グリッドからの順位上昇",
+     "unit": "gridPosition - finishingPosition"
+    },
+    {
+     "name": "lapRows",
+     "type": "integer",
+     "label": "ラップ行数",
+     "unit": "FastF1 が記録したラップ数"
+    },
+    {
+     "name": "lapsCompleted",
+     "type": "integer",
+     "label": "完走周回数",
+     "unit": "周（ラップ行から集計）"
+    },
+    {
+     "name": "pitStops",
+     "type": "integer",
+     "label": "ピットストップ回数",
+     "unit": "回"
+    },
+    {
+     "name": "stintCount",
+     "type": "integer",
+     "label": "スティント数",
+     "unit": "回"
+    },
+    {
+     "name": "bestLapMs",
+     "type": "number",
+     "label": "ベストラップ",
+     "unit": "ミリ秒（FastF1 記録）"
+    },
+    {
+     "name": "avgLapMs",
+     "type": "number",
+     "label": "平均ラップタイム",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "stddevLapMs",
+     "type": "number",
+     "label": "ラップタイムの標準偏差",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "lastLapMs",
+     "type": "number",
+     "label": "最終ラップタイム",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "bestLapValidMs",
+     "type": "number",
+     "label": "有効なベストラップ",
+     "unit": "ミリ秒（削除・補完ラップを除く）"
+    },
+    {
+     "name": "deletedLaps",
+     "type": "integer",
+     "label": "削除ラップ数",
+     "unit": "件"
+    },
+    {
+     "name": "bestS1Ms",
+     "type": "number",
+     "label": "セクター1 ベスト",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "bestS2Ms",
+     "type": "number",
+     "label": "セクター2 ベスト",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "bestS3Ms",
+     "type": "number",
+     "label": "セクター3 ベスト",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "compoundsUsed",
+     "type": "string",
+     "label": "使用コンパウンド内訳",
+     "unit": "例 SOFT:12,MEDIUM:5"
+    },
+    {
+     "name": "compoundStintCount",
+     "type": "integer",
+     "label": "コンパウンド別スティント数",
+     "unit": "件"
+    },
+    {
+     "name": "maxTyreAgeLaps",
+     "type": "number",
+     "label": "タイヤ使用周回の最大",
+     "unit": "周"
+    },
+    {
+     "name": "avgTyreAgeLaps",
+     "type": "number",
+     "label": "タイヤ使用周回の平均",
+     "unit": "周"
+    },
+    {
+     "name": "maxStintLaps",
+     "type": "integer",
+     "label": "最長スティント",
+     "unit": "周"
+    },
+    {
+     "name": "avgStintLaps",
+     "type": "number",
+     "label": "平均スティント長",
+     "unit": "周"
+    },
+    {
+     "name": "pitLaneTotalSeconds",
+     "type": "number",
+     "label": "ピットレーン走行時間の合計",
+     "unit": "秒"
+    },
+    {
+     "name": "pitLaneMaxSeconds",
+     "type": "number",
+     "label": "ピットレーン走行時間の最大",
+     "unit": "秒"
+    },
+    {
+     "name": "pitLaneAvgSeconds",
+     "type": "number",
+     "label": "ピットレーン走行時間の平均",
+     "unit": "秒"
+    },
+    {
+     "name": "telemetrySamples",
+     "type": "number",
+     "label": "テレメトリサンプル数",
+     "unit": "件（詳細系列 2.0 秒間隔）"
+    },
+    {
+     "name": "telemetrySeconds",
+     "type": "number",
+     "label": "テレメトリ計測時間",
+     "unit": "秒"
+    },
+    {
+     "name": "speedMaxKmh",
+     "type": "number",
+     "label": "最高速度",
+     "unit": "km/h"
+    },
+    {
+     "name": "speedMinKmh",
+     "type": "number",
+     "label": "最低速度",
+     "unit": "km/h"
+    },
+    {
+     "name": "speedMeanKmh",
+     "type": "number",
+     "label": "平均速度",
+     "unit": "km/h"
+    },
+    {
+     "name": "speedP95Kmh",
+     "type": "number",
+     "label": "速度の95パーセンタイル",
+     "unit": "km/h"
+    },
+    {
+     "name": "speedOver300Seconds",
+     "type": "number",
+     "label": "300km/h 超で走行した時間",
+     "unit": "秒"
+    },
+    {
+     "name": "speedOver250Seconds",
+     "type": "number",
+     "label": "250km/h 超で走行した時間",
+     "unit": "秒"
+    },
+    {
+     "name": "speedOver200Seconds",
+     "type": "number",
+     "label": "200km/h 超で走行した時間",
+     "unit": "秒"
+    },
+    {
+     "name": "speedOver100Seconds",
+     "type": "number",
+     "label": "100km/h 超で走行した時間",
+     "unit": "秒"
+    },
+    {
+     "name": "throttleMeanPct",
+     "type": "number",
+     "label": "スロットル開度（平均）",
+     "unit": "%"
+    },
+    {
+     "name": "throttleP95Pct",
+     "type": "number",
+     "label": "スロットル開度（95パーセンタイル）",
+     "unit": "%"
+    },
+    {
+     "name": "throttleMaxPct",
+     "type": "number",
+     "label": "スロットル開度（最大）",
+     "unit": "%"
+    },
+    {
+     "name": "throttleOver50Seconds",
+     "type": "number",
+     "label": "スロットル50%超の時間",
+     "unit": "秒"
+    },
+    {
+     "name": "throttleZeroSeconds",
+     "type": "number",
+     "label": "スロットル0%の時間",
+     "unit": "秒"
+    },
+    {
+     "name": "brakeSeconds",
+     "type": "number",
+     "label": "ブレーキ使用時間",
+     "unit": "秒"
+    },
+    {
+     "name": "brakeRatioPct",
+     "type": "number",
+     "label": "ブレーキ使用率",
+     "unit": "%（計測時間に対する割合）"
+    },
+    {
+     "name": "drsZoneSeconds",
+     "type": "number",
+     "label": "DRSゾーン検知時間",
+     "unit": "秒"
+    },
+    {
+     "name": "drsOpenSeconds",
+     "type": "number",
+     "label": "DRS開放時間",
+     "unit": "秒"
+    },
+    {
+     "name": "drsOpenRatioPct",
+     "type": "number",
+     "label": "DRS開放率",
+     "unit": "%（DRSゾーン時間に対する割合）"
+    },
+    {
+     "name": "gearMax",
+     "type": "number",
+     "label": "最高ギア",
+     "unit": ""
+    },
+    {
+     "name": "gearMin",
+     "type": "number",
+     "label": "最低ギア",
+     "unit": ""
+    },
+    {
+     "name": "gearChanges",
+     "type": "number",
+     "label": "ギアチェンジ回数",
+     "unit": "回（サンプル間の変化数）"
+    },
+    {
+     "name": "accelMaxMs2",
+     "type": "number",
+     "label": "最大加速度",
+     "unit": "m/s^2"
+    },
+    {
+     "name": "accelP95Ms2",
+     "type": "number",
+     "label": "加速度の95パーセンタイル",
+     "unit": "m/s^2"
+    },
+    {
+     "name": "decelMaxMs2",
+     "type": "number",
+     "label": "最大減速度",
+     "unit": "m/s^2"
+    },
+    {
+     "name": "decelP05Ms2",
+     "type": "number",
+     "label": "減速度の5パーセンタイル",
+     "unit": "m/s^2"
+    },
+    {
+     "name": "stationarySeconds",
+     "type": "number",
+     "label": "停止状態の時間",
+     "unit": "秒"
+    },
+    {
+     "name": "offTrackSeconds",
+     "type": "number",
+     "label": "コース外走行の時間",
+     "unit": "秒"
+    },
+    {
+     "name": "onTrackSeconds",
+     "type": "number",
+     "label": "コース内走行の時間",
+     "unit": "秒"
+    },
+    {
+     "name": "hasPosition",
+     "type": "number",
+     "label": "位置データの有無",
+     "unit": "true のとき X/Y 座標とコース形状が得られる"
+    },
+    {
+     "name": "positionStart",
+     "type": "number",
+     "label": "セッション開始時の順位",
+     "unit": "位"
+    },
+    {
+     "name": "positionEnd",
+     "type": "number",
+     "label": "セッション終了時の順位",
+     "unit": "位"
+    },
+    {
+     "name": "positionMin",
+     "type": "number",
+     "label": "最順位",
+     "unit": "位"
+    },
+    {
+     "name": "positionMax",
+     "type": "number",
+     "label": "最高順位",
+     "unit": "位"
+    },
+    {
+     "name": "deletedLapMsSaved",
+     "type": "number",
+     "label": "削除ラップの合計時間",
+     "unit": "ミリ秒"
+    }
+   ],
+   "csv": "driver_session_features.csv",
+   "csvBytes": 5340003,
+   "parquet": "driver_session_features.parquet",
+   "parquetBytes": 1305227
+  },
+  "drivers": {
+   "label": "ドライバー次元テーブル（1ドライバー = 1行）",
+   "description": "セッション結果表から導出した通算成績（出走・優勝・表彰台・ポール・ポイント）。",
+   "primaryKey": [
+    "driver"
+   ],
+   "rowCount": 44,
+   "columns": [
+    {
+     "name": "driver",
+     "type": "string",
+     "label": "ドライバー略称",
+     "unit": "3文字（例 VER）"
+    },
+    {
+     "name": "driverId",
+     "type": "string",
+     "label": "ドライバーID",
+     "unit": "F1 公式 ID"
+    },
+    {
+     "name": "firstName",
+     "type": "string",
+     "label": "名",
+     "unit": ""
+    },
+    {
+     "name": "lastName",
+     "type": "string",
+     "label": "姓",
+     "unit": ""
+    },
+    {
+     "name": "countryCode",
+     "type": "string",
+     "label": "国籍コード",
+     "unit": "F1 公式の 3 文字コード"
+    },
+    {
+     "name": "firstYear",
+     "type": "integer",
+     "label": "初登場年",
+     "unit": ""
+    },
+    {
+     "name": "lastYear",
+     "type": "integer",
+     "label": "最終登場年",
+     "unit": ""
+    },
+    {
+     "name": "years",
+     "type": "integer",
+     "label": "登場年数",
+     "unit": "年"
+    },
+    {
+     "name": "sessionCount",
+     "type": "integer",
+     "label": "出走セッション数",
+     "unit": "件"
+    },
+    {
+     "name": "raceCount",
+     "type": "integer",
+     "label": "決勝出走数",
+     "unit": "件"
+    },
+    {
+     "name": "sprintCount",
+     "type": "integer",
+     "label": "スプリント出走数",
+     "unit": "件"
+    },
+    {
+     "name": "qualifyingCount",
+     "type": "integer",
+     "label": "予選出走数",
+     "unit": "件"
+    },
+    {
+     "name": "wins",
+     "type": "integer",
+     "label": "優勝数",
+     "unit": "回"
+    },
+    {
+     "name": "podiums",
+     "type": "integer",
+     "label": "表彰台回数",
+     "unit": "回"
+    },
+    {
+     "name": "poles",
+     "type": "integer",
+     "label": "ポールポジション数",
+     "unit": "回"
+    },
+    {
+     "name": "pointsTotal",
+     "type": "number",
+     "label": "獲得ポイント合計",
+     "unit": "点"
+    },
+    {
+     "name": "retirements",
+     "type": "integer",
+     "label": "リタイア数",
+     "unit": "回"
+    },
+    {
+     "name": "teams",
+     "type": "string",
+     "label": "在籍チーム",
+     "unit": "出現したチーム名（時系列順）"
+    },
+    {
+     "name": "numbers",
+     "type": "string",
+     "label": "使用カーナンバー",
+     "unit": "出現したナンバー"
+    },
+    {
+     "name": "circuitCount",
+     "type": "integer",
+     "label": "出走コース数",
+     "unit": "件"
+    },
+    {
+     "name": "bestLapMsMin",
+     "type": "number",
+     "label": "最速ラップ記録",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "speedMaxKmhMax",
+     "type": "number",
+     "label": "最高速度の最大",
+     "unit": "km/h"
+    }
+   ],
+   "csv": "drivers.csv",
+   "csvBytes": 5222,
+   "parquet": "drivers.parquet",
+   "parquetBytes": 16962
+  },
+  "laps": {
+   "label": "ラップ単位（1周 = 1行）",
+   "description": "ラップタイム・セクター・タイヤ・順位・その時点の天気。ラップ単位のモデルを作る場合に使う。",
+   "primaryKey": [
+    "sessionKey",
+    "driverNumber",
+    "lap"
+   ],
+   "rowCount": 282174,
+   "columns": [
+    {
+     "name": "sessionKey",
+     "type": "string",
+     "label": "セッションキー",
+     "unit": "全テーブルの外部キー。data/<slug>.json.gz の slug と同一"
+    },
+    {
+     "name": "year",
+     "type": "integer",
+     "label": "年",
+     "unit": "シーズン"
+    },
+    {
+     "name": "round",
+     "type": "integer",
+     "label": "ラウンド番号",
+     "unit": "その年の大会番号"
+    },
+    {
+     "name": "sessionType",
+     "type": "string",
+     "label": "セッション種別",
+     "unit": "R=決勝 / Q=予選 / S=スプリント / SQ=スプリント予選"
+    },
+    {
+     "name": "circuit",
+     "type": "string",
+     "label": "コース",
+     "unit": "location と同じ値。次元テーブルのキー"
+    },
+    {
+     "name": "country",
+     "type": "string",
+     "label": "開催国",
+     "unit": ""
+    },
+    {
+     "name": "date",
+     "type": "string",
+     "label": "開催日",
+     "unit": "YYYY-MM-DD"
+    },
+    {
+     "name": "eventFormat",
+     "type": "string",
+     "label": "大会フォーマット",
+     "unit": "conventional / sprint / sprint_qualifying"
+    },
+    {
+     "name": "driverNumber",
+     "type": "string",
+     "label": "カーナンバー",
+     "unit": "例 44"
+    },
+    {
+     "name": "driver",
+     "type": "string",
+     "label": "ドライバー略称",
+     "unit": "3文字（例 VER）"
+    },
+    {
+     "name": "teamName",
+     "type": "string",
+     "label": "チーム名",
+     "unit": ""
+    },
+    {
+     "name": "lap",
+     "type": "integer",
+     "label": "周回番号",
+     "unit": "周"
+    },
+    {
+     "name": "lapTimeMs",
+     "type": "number",
+     "label": "ラップタイム",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "sector1Ms",
+     "type": "number",
+     "label": "セクター1 タイム",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "sector2Ms",
+     "type": "number",
+     "label": "セクター2 タイム",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "sector3Ms",
+     "type": "number",
+     "label": "セクター3 タイム",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "speedTrapI1Kmh",
+     "type": "number",
+     "label": "速度トラップ I1",
+     "unit": "km/h"
+    },
+    {
+     "name": "speedTrapI2Kmh",
+     "type": "number",
+     "label": "速度トラップ I2",
+     "unit": "km/h"
+    },
+    {
+     "name": "speedTrapFLKmh",
+     "type": "number",
+     "label": "速度トラップ（フィニッシュライン）",
+     "unit": "km/h"
+    },
+    {
+     "name": "speedTrapSTKmh",
+     "type": "number",
+     "label": "速度トラップ（最終計測点）",
+     "unit": "km/h"
+    },
+    {
+     "name": "compound",
+     "type": "string",
+     "label": "タイヤコンパウンド",
+     "unit": "SOFT / MEDIUM / HARD / INTERMEDIATE / WET"
+    },
+    {
+     "name": "tyreAgeLaps",
+     "type": "number",
+     "label": "タイヤ使用周回",
+     "unit": "周（ラップ開始時点）"
+    },
+    {
+     "name": "position",
+     "type": "number",
+     "label": "順位",
+     "unit": "位（そのラップ時点）"
+    },
+    {
+     "name": "lapStartTimeSec",
+     "type": "number",
+     "label": "ラップ開始時刻",
+     "unit": "秒（セッション開始基準）"
+    },
+    {
+     "name": "pitInSec",
+     "type": "number",
+     "label": "ピットイン時刻",
+     "unit": "秒（セッション開始基準）"
+    },
+    {
+     "name": "pitOutSec",
+     "type": "number",
+     "label": "ピットアウト時刻",
+     "unit": "秒（セッション開始基準）"
+    },
+    {
+     "name": "trackStatus",
+     "type": "string",
+     "label": "トラックステータス",
+     "unit": "その時点のコード"
+    },
+    {
+     "name": "isDeleted",
+     "type": "boolean",
+     "label": "削除ラップ",
+     "unit": "true のとき公式記録から除外されている"
+    },
+    {
+     "name": "isFastF1Generated",
+     "type": "boolean",
+     "label": "FastF1 補完ラップ",
+     "unit": "計測データから補間して生成されたラップ"
+    },
+    {
+     "name": "isAccurate",
+     "type": "boolean",
+     "label": "計測精度",
+     "unit": "FastF1 がラップタイムを正確と判断したか"
+    },
+    {
+     "name": "isPersonalBest",
+     "type": "boolean",
+     "label": "本人のベスト",
+     "unit": "そのドライバーの最良ラップか"
+    },
+    {
+     "name": "deletedReason",
+     "type": "string",
+     "label": "削除理由",
+     "unit": "FastF1 の削除理由"
+    },
+    {
+     "name": "airTempC",
+     "type": "number",
+     "label": "気温",
+     "unit": "℃（その時点の値）"
+    },
+    {
+     "name": "trackTempC",
+     "type": "number",
+     "label": "路面温度",
+     "unit": "℃（その時点の値）"
+    },
+    {
+     "name": "humidityPct",
+     "type": "number",
+     "label": "湿度",
+     "unit": "%（その時点の値）"
+    },
+    {
+     "name": "pressureHpa",
+     "type": "number",
+     "label": "気圧",
+     "unit": "hPa（その時点の値）"
+    },
+    {
+     "name": "rainfallMm",
+     "type": "number",
+     "label": "降雨量",
+     "unit": "mm（その時点の値）"
+    },
+    {
+     "name": "windSpeedMs",
+     "type": "number",
+     "label": "風速",
+     "unit": "m/s（その時点の値）"
+    },
+    {
+     "name": "windDirectionDeg",
+     "type": "number",
+     "label": "風向",
+     "unit": "度（その時点の値）"
+    }
+   ],
+   "csv": "laps.csv",
+   "csvBytes": 63455341,
+   "parquet": "laps.parquet",
+   "parquetBytes": 7020898
+  },
+  "pit_stops": {
+   "label": "ピットストップ単位（1回 = 1行）",
+   "description": "テレメトリから復元したピットイン/アウト時刻と停止時間。",
+   "primaryKey": [
+    "sessionKey",
+    "driverNumber",
+    "stop"
+   ],
+   "rowCount": 25118,
+   "columns": [
+    {
+     "name": "sessionKey",
+     "type": "string",
+     "label": "セッションキー",
+     "unit": "全テーブルの外部キー。data/<slug>.json.gz の slug と同一"
+    },
+    {
+     "name": "year",
+     "type": "integer",
+     "label": "年",
+     "unit": "シーズン"
+    },
+    {
+     "name": "round",
+     "type": "integer",
+     "label": "ラウンド番号",
+     "unit": "その年の大会番号"
+    },
+    {
+     "name": "sessionType",
+     "type": "string",
+     "label": "セッション種別",
+     "unit": "R=決勝 / Q=予選 / S=スプリント / SQ=スプリント予選"
+    },
+    {
+     "name": "circuit",
+     "type": "string",
+     "label": "コース",
+     "unit": "location と同じ値。次元テーブルのキー"
+    },
+    {
+     "name": "driverNumber",
+     "type": "string",
+     "label": "カーナンバー",
+     "unit": "例 44"
+    },
+    {
+     "name": "driver",
+     "type": "string",
+     "label": "ドライバー略称",
+     "unit": "3文字（例 VER）"
+    },
+    {
+     "name": "teamName",
+     "type": "string",
+     "label": "チーム名",
+     "unit": ""
+    },
+    {
+     "name": "stop",
+     "type": "integer",
+     "label": "ピットストップ番号",
+     "unit": "ドライバー内で 1 始まり"
+    },
+    {
+     "name": "lapBefore",
+     "type": "integer",
+     "label": "ピット前の周回",
+     "unit": "周"
+    },
+    {
+     "name": "pitIn",
+     "type": "number",
+     "label": "ピットイン時刻",
+     "unit": "秒（セッション開始基準）"
+    },
+    {
+     "name": "pitOut",
+     "type": "number",
+     "label": "ピットアウト時刻",
+     "unit": "秒（セッション開始基準）"
+    },
+    {
+     "name": "stopSeconds",
+     "type": "number",
+     "label": "ピット停止時間",
+     "unit": "秒（ピットインからアウトまで）"
+    },
+    {
+     "name": "lapTimeBeforeMs",
+     "type": "number",
+     "label": "ピット前のラップタイム",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "compoundBefore",
+     "type": "string",
+     "label": "ピット前のコンパウンド",
+     "unit": ""
+    },
+    {
+     "name": "tyreAgeBefore",
+     "type": "number",
+     "label": "ピット前のタイヤ使用周回",
+     "unit": "周"
+    }
+   ],
+   "csv": "pit_stops.csv",
+   "csvBytes": 2242189,
+   "parquet": "pit_stops.parquet",
+   "parquetBytes": 506656
+  },
+  "race_control": {
+   "label": "レースコントロールメッセージ",
+   "description": "公式メッセージログ（時刻・周回・対象ドライバー）。",
+   "primaryKey": [
+    "sessionKey",
+    "t"
+   ],
+   "rowCount": 27601,
+   "columns": [
+    {
+     "name": "sessionKey",
+     "type": "string",
+     "label": "セッションキー",
+     "unit": "全テーブルの外部キー。data/<slug>.json.gz の slug と同一"
+    },
+    {
+     "name": "year",
+     "type": "integer",
+     "label": "年",
+     "unit": "シーズン"
+    },
+    {
+     "name": "round",
+     "type": "integer",
+     "label": "ラウンド番号",
+     "unit": "その年の大会番号"
+    },
+    {
+     "name": "sessionType",
+     "type": "string",
+     "label": "セッション種別",
+     "unit": "R=決勝 / Q=予選 / S=スプリント / SQ=スプリント予選"
+    },
+    {
+     "name": "circuit",
+     "type": "string",
+     "label": "コース",
+     "unit": "location と同じ値。次元テーブルのキー"
+    },
+    {
+     "name": "t",
+     "type": "number",
+     "label": "セッション開始からの時刻",
+     "unit": "秒（0 =  lights out / セッション開始）"
+    },
+    {
+     "name": "lap",
+     "type": "number",
+     "label": "周回番号",
+     "unit": "周"
+    },
+    {
+     "name": "flag",
+     "type": "string",
+     "label": "フラグ",
+     "unit": "公式メッセージのフラグ種別"
+    },
+    {
+     "name": "category",
+     "type": "string",
+     "label": "メッセージ種別",
+     "unit": "FastF1 が分類したカテゴリ"
+    },
+    {
+     "name": "driver",
+     "type": "string",
+     "label": "ドライバー略称",
+     "unit": "3文字（例 VER）"
+    },
+    {
+     "name": "text",
+     "type": "string",
+     "label": "メッセージ本文",
+     "unit": ""
+    }
+   ],
+   "csv": "race_control.csv",
+   "csvBytes": 2767506,
+   "parquet": "race_control.parquet",
+   "parquetBytes": 342426
+  },
+  "session_results": {
+   "label": "セッション結果 × ドライバー（公式結果 + ラップ/テレメトリ集計）",
+   "description": "公式タイムシートにドライバー単位の集計特徴を結合した表。目的変数（順位・ポイント）もここにある。",
+   "primaryKey": [
+    "sessionKey",
+    "driverNumber"
+   ],
+   "rowCount": 8607,
+   "columns": [
+    {
+     "name": "sessionKey",
+     "type": "string",
+     "label": "セッションキー",
+     "unit": "全テーブルの外部キー。data/<slug>.json.gz の slug と同一"
+    },
+    {
+     "name": "year",
+     "type": "integer",
+     "label": "年",
+     "unit": "シーズン"
+    },
+    {
+     "name": "round",
+     "type": "integer",
+     "label": "ラウンド番号",
+     "unit": "その年の大会番号"
+    },
+    {
+     "name": "sessionType",
+     "type": "string",
+     "label": "セッション種別",
+     "unit": "R=決勝 / Q=予選 / S=スプリント / SQ=スプリント予選"
+    },
+    {
+     "name": "eventName",
+     "type": "string",
+     "label": "大会公式名称",
+     "unit": "例 FORMULA 1 ... GRAND PRIX"
+    },
+    {
+     "name": "circuit",
+     "type": "string",
+     "label": "コース",
+     "unit": "location と同じ値。次元テーブルのキー"
+    },
+    {
+     "name": "country",
+     "type": "string",
+     "label": "開催国",
+     "unit": ""
+    },
+    {
+     "name": "date",
+     "type": "string",
+     "label": "開催日",
+     "unit": "YYYY-MM-DD"
+    },
+    {
+     "name": "eventFormat",
+     "type": "string",
+     "label": "大会フォーマット",
+     "unit": "conventional / sprint / sprint_qualifying"
+    },
+    {
+     "name": "sessionDurationSec",
+     "type": "number",
+     "label": "セッション所要時間",
+     "unit": "秒（計測開始から最終サンプルまで）"
+    },
+    {
+     "name": "totalLaps",
+     "type": "integer",
+     "label": "規定周回数",
+     "unit": "周"
+    },
+    {
+     "name": "trackLengthMeters",
+     "type": "number",
+     "label": "1周距離",
+     "unit": "メートル（テレメトリの X/Y から算出。GPS ではない）"
+    },
+    {
+     "name": "driverNumber",
+     "type": "string",
+     "label": "カーナンバー",
+     "unit": "例 44"
+    },
+    {
+     "name": "driver",
+     "type": "string",
+     "label": "ドライバー略称",
+     "unit": "3文字（例 VER）"
+    },
+    {
+     "name": "driverId",
+     "type": "string",
+     "label": "ドライバーID",
+     "unit": "F1 公式 ID"
+    },
+    {
+     "name": "firstName",
+     "type": "string",
+     "label": "名",
+     "unit": ""
+    },
+    {
+     "name": "lastName",
+     "type": "string",
+     "label": "姓",
+     "unit": ""
+    },
+    {
+     "name": "teamName",
+     "type": "string",
+     "label": "チーム名",
+     "unit": ""
+    },
+    {
+     "name": "teamId",
+     "type": "string",
+     "label": "チームID",
+     "unit": "F1 公式 ID"
+    },
+    {
+     "name": "teamColor",
+     "type": "string",
+     "label": "チームカラー",
+     "unit": "16進 RGB（# なし）"
+    },
+    {
+     "name": "countryCode",
+     "type": "string",
+     "label": "国籍コード",
+     "unit": "F1 公式の 3 文字コード"
+    },
+    {
+     "name": "gridPosition",
+     "type": "number",
+     "label": "スターティンググリッド",
+     "unit": "周回開始時のポジション"
+    },
+    {
+     "name": "finishingPosition",
+     "type": "number",
+     "label": "最終順位",
+     "unit": "公式順位"
+    },
+    {
+     "name": "classifiedPosition",
+     "type": "number",
+     "label": "分類順位",
+     "unit": "完走扱いの順位（非完走は null）"
+    },
+    {
+     "name": "status",
+     "type": "string",
+     "label": "出走結果",
+     "unit": "Finished / +1L / DNF など公式ステータス"
+    },
+    {
+     "name": "points",
+     "type": "number",
+     "label": "獲得ポイント",
+     "unit": "点"
+    },
+    {
+     "name": "lapsDeclared",
+     "type": "number",
+     "label": "公式記録の周回数",
+     "unit": "周"
+    },
+    {
+     "name": "q1Ms",
+     "type": "number",
+     "label": "Q1 タイム",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "q2Ms",
+     "type": "number",
+     "label": "Q2 タイム",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "q3Ms",
+     "type": "number",
+     "label": "Q3 タイム",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "lapRows",
+     "type": "integer",
+     "label": "ラップ行数",
+     "unit": "FastF1 が記録したラップ数"
+    },
+    {
+     "name": "lapsCompleted",
+     "type": "integer",
+     "label": "完走周回数",
+     "unit": "周（ラップ行から集計）"
+    },
+    {
+     "name": "pitStops",
+     "type": "integer",
+     "label": "ピットストップ回数",
+     "unit": "回"
+    },
+    {
+     "name": "stintCount",
+     "type": "integer",
+     "label": "スティント数",
+     "unit": "回"
+    },
+    {
+     "name": "bestLapMs",
+     "type": "number",
+     "label": "ベストラップ",
+     "unit": "ミリ秒（FastF1 記録）"
+    },
+    {
+     "name": "avgLapMs",
+     "type": "number",
+     "label": "平均ラップタイム",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "stddevLapMs",
+     "type": "number",
+     "label": "ラップタイムの標準偏差",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "lastLapMs",
+     "type": "number",
+     "label": "最終ラップタイム",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "bestLapValidMs",
+     "type": "number",
+     "label": "有効なベストラップ",
+     "unit": "ミリ秒（削除・補完ラップを除く）"
+    },
+    {
+     "name": "deletedLaps",
+     "type": "integer",
+     "label": "削除ラップ数",
+     "unit": "件"
+    },
+    {
+     "name": "bestS1Ms",
+     "type": "number",
+     "label": "セクター1 ベスト",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "bestS2Ms",
+     "type": "number",
+     "label": "セクター2 ベスト",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "bestS3Ms",
+     "type": "number",
+     "label": "セクター3 ベスト",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "compoundsUsed",
+     "type": "string",
+     "label": "使用コンパウンド内訳",
+     "unit": "例 SOFT:12,MEDIUM:5"
+    },
+    {
+     "name": "compoundStintCount",
+     "type": "integer",
+     "label": "コンパウンド別スティント数",
+     "unit": "件"
+    },
+    {
+     "name": "maxTyreAgeLaps",
+     "type": "number",
+     "label": "タイヤ使用周回の最大",
+     "unit": "周"
+    },
+    {
+     "name": "avgTyreAgeLaps",
+     "type": "number",
+     "label": "タイヤ使用周回の平均",
+     "unit": "周"
+    },
+    {
+     "name": "maxStintLaps",
+     "type": "number",
+     "label": "最長スティント",
+     "unit": "周"
+    },
+    {
+     "name": "avgStintLaps",
+     "type": "number",
+     "label": "平均スティント長",
+     "unit": "周"
+    },
+    {
+     "name": "pitLaneTotalSeconds",
+     "type": "number",
+     "label": "ピットレーン走行時間の合計",
+     "unit": "秒"
+    },
+    {
+     "name": "pitLaneMaxSeconds",
+     "type": "number",
+     "label": "ピットレーン走行時間の最大",
+     "unit": "秒"
+    },
+    {
+     "name": "pitLaneAvgSeconds",
+     "type": "number",
+     "label": "ピットレーン走行時間の平均",
+     "unit": "秒"
+    },
+    {
+     "name": "telemetrySamples",
+     "type": "number",
+     "label": "テレメトリサンプル数",
+     "unit": "件（詳細系列 2.0 秒間隔）"
+    },
+    {
+     "name": "telemetrySeconds",
+     "type": "number",
+     "label": "テレメトリ計測時間",
+     "unit": "秒"
+    },
+    {
+     "name": "speedMaxKmh",
+     "type": "number",
+     "label": "最高速度",
+     "unit": "km/h"
+    },
+    {
+     "name": "speedMinKmh",
+     "type": "number",
+     "label": "最低速度",
+     "unit": "km/h"
+    },
+    {
+     "name": "speedMeanKmh",
+     "type": "number",
+     "label": "平均速度",
+     "unit": "km/h"
+    },
+    {
+     "name": "speedP95Kmh",
+     "type": "number",
+     "label": "速度の95パーセンタイル",
+     "unit": "km/h"
+    },
+    {
+     "name": "speedOver300Seconds",
+     "type": "number",
+     "label": "300km/h 超で走行した時間",
+     "unit": "秒"
+    },
+    {
+     "name": "speedOver250Seconds",
+     "type": "number",
+     "label": "250km/h 超で走行した時間",
+     "unit": "秒"
+    },
+    {
+     "name": "speedOver200Seconds",
+     "type": "number",
+     "label": "200km/h 超で走行した時間",
+     "unit": "秒"
+    },
+    {
+     "name": "speedOver100Seconds",
+     "type": "number",
+     "label": "100km/h 超で走行した時間",
+     "unit": "秒"
+    },
+    {
+     "name": "throttleMeanPct",
+     "type": "number",
+     "label": "スロットル開度（平均）",
+     "unit": "%"
+    },
+    {
+     "name": "throttleP95Pct",
+     "type": "number",
+     "label": "スロットル開度（95パーセンタイル）",
+     "unit": "%"
+    },
+    {
+     "name": "throttleMaxPct",
+     "type": "number",
+     "label": "スロットル開度（最大）",
+     "unit": "%"
+    },
+    {
+     "name": "throttleOver50Seconds",
+     "type": "number",
+     "label": "スロットル50%超の時間",
+     "unit": "秒"
+    },
+    {
+     "name": "throttleZeroSeconds",
+     "type": "number",
+     "label": "スロットル0%の時間",
+     "unit": "秒"
+    },
+    {
+     "name": "brakeSeconds",
+     "type": "number",
+     "label": "ブレーキ使用時間",
+     "unit": "秒"
+    },
+    {
+     "name": "brakeRatioPct",
+     "type": "number",
+     "label": "ブレーキ使用率",
+     "unit": "%（計測時間に対する割合）"
+    },
+    {
+     "name": "drsZoneSeconds",
+     "type": "number",
+     "label": "DRSゾーン検知時間",
+     "unit": "秒"
+    },
+    {
+     "name": "drsOpenSeconds",
+     "type": "number",
+     "label": "DRS開放時間",
+     "unit": "秒"
+    },
+    {
+     "name": "drsOpenRatioPct",
+     "type": "number",
+     "label": "DRS開放率",
+     "unit": "%（DRSゾーン時間に対する割合）"
+    },
+    {
+     "name": "gearMax",
+     "type": "number",
+     "label": "最高ギア",
+     "unit": ""
+    },
+    {
+     "name": "gearMin",
+     "type": "number",
+     "label": "最低ギア",
+     "unit": ""
+    },
+    {
+     "name": "gearChanges",
+     "type": "number",
+     "label": "ギアチェンジ回数",
+     "unit": "回（サンプル間の変化数）"
+    },
+    {
+     "name": "accelMaxMs2",
+     "type": "number",
+     "label": "最大加速度",
+     "unit": "m/s^2"
+    },
+    {
+     "name": "accelP95Ms2",
+     "type": "number",
+     "label": "加速度の95パーセンタイル",
+     "unit": "m/s^2"
+    },
+    {
+     "name": "decelMaxMs2",
+     "type": "number",
+     "label": "最大減速度",
+     "unit": "m/s^2"
+    },
+    {
+     "name": "decelP05Ms2",
+     "type": "number",
+     "label": "減速度の5パーセンタイル",
+     "unit": "m/s^2"
+    },
+    {
+     "name": "stationarySeconds",
+     "type": "number",
+     "label": "停止状態の時間",
+     "unit": "秒"
+    },
+    {
+     "name": "offTrackSeconds",
+     "type": "number",
+     "label": "コース外走行の時間",
+     "unit": "秒"
+    },
+    {
+     "name": "onTrackSeconds",
+     "type": "number",
+     "label": "コース内走行の時間",
+     "unit": "秒"
+    },
+    {
+     "name": "hasPosition",
+     "type": "number",
+     "label": "位置データの有無",
+     "unit": "true のとき X/Y 座標とコース形状が得られる"
+    },
+    {
+     "name": "positionStart",
+     "type": "number",
+     "label": "セッション開始時の順位",
+     "unit": "位"
+    },
+    {
+     "name": "positionEnd",
+     "type": "number",
+     "label": "セッション終了時の順位",
+     "unit": "位"
+    },
+    {
+     "name": "positionMin",
+     "type": "number",
+     "label": "最順位",
+     "unit": "位"
+    },
+    {
+     "name": "positionMax",
+     "type": "number",
+     "label": "最高順位",
+     "unit": "位"
+    },
+    {
+     "name": "deletedLapMsSaved",
+     "type": "number",
+     "label": "削除ラップの合計時間",
+     "unit": "ミリ秒"
+    }
+   ],
+   "csv": "session_results.csv",
+   "csvBytes": 4740696,
+   "parquet": "session_results.parquet",
+   "parquetBytes": 1334593
+  },
+  "sessions": {
+   "label": "セッション単位（1セッション = 1行）",
+   "description": "大会・天候・コース・レースコントロールの集計。セッション単位の説明変数はここから取る。",
+   "primaryKey": [
+    "sessionKey"
+   ],
+   "rowCount": 426,
+   "columns": [
+    {
+     "name": "sessionKey",
+     "type": "string",
+     "label": "セッションキー",
+     "unit": "全テーブルの外部キー。data/<slug>.json.gz の slug と同一"
+    },
+    {
+     "name": "slug",
+     "type": "string",
+     "label": "データファイルのスラッグ",
+     "unit": "例 2024-r05-r"
+    },
+    {
+     "name": "year",
+     "type": "integer",
+     "label": "年",
+     "unit": "シーズン"
+    },
+    {
+     "name": "round",
+     "type": "integer",
+     "label": "ラウンド番号",
+     "unit": "その年の大会番号"
+    },
+    {
+     "name": "sessionType",
+     "type": "string",
+     "label": "セッション種別",
+     "unit": "R=決勝 / Q=予選 / S=スプリント / SQ=スプリント予選"
+    },
+    {
+     "name": "eventName",
+     "type": "string",
+     "label": "大会公式名称",
+     "unit": "例 FORMULA 1 ... GRAND PRIX"
+    },
+    {
+     "name": "eventFormat",
+     "type": "string",
+     "label": "大会フォーマット",
+     "unit": "conventional / sprint / sprint_qualifying"
+    },
+    {
+     "name": "country",
+     "type": "string",
+     "label": "開催国",
+     "unit": ""
+    },
+    {
+     "name": "location",
+     "type": "string",
+     "label": "開催地",
+     "unit": "FastF1 の Location（通常はサーキット名）"
+    },
+    {
+     "name": "circuit",
+     "type": "string",
+     "label": "コース",
+     "unit": "location と同じ値。次元テーブルのキー"
+    },
+    {
+     "name": "date",
+     "type": "string",
+     "label": "開催日",
+     "unit": "YYYY-MM-DD"
+    },
+    {
+     "name": "totalLaps",
+     "type": "integer",
+     "label": "規定周回数",
+     "unit": "周"
+    },
+    {
+     "name": "sessionDurationSec",
+     "type": "number",
+     "label": "セッション所要時間",
+     "unit": "秒（計測開始から最終サンプルまで）"
+    },
+    {
+     "name": "driverCount",
+     "type": "integer",
+     "label": "出走ドライバー数",
+     "unit": "人"
+    },
+    {
+     "name": "hasPosition",
+     "type": "boolean",
+     "label": "位置データの有無",
+     "unit": "true のとき X/Y 座標とコース形状が得られる"
+    },
+    {
+     "name": "trackLengthMeters",
+     "type": "number",
+     "label": "1周距離",
+     "unit": "メートル（テレメトリの X/Y から算出。GPS ではない）"
+    },
+    {
+     "name": "pitLaneMeters",
+     "type": "number",
+     "label": "ピットレーン距離",
+     "unit": "メートル（テレメトリから算出）"
+    },
+    {
+     "name": "lapRows",
+     "type": "integer",
+     "label": "ラップ行数",
+     "unit": "FastF1 が記録したラップ数"
+    },
+    {
+     "name": "pitStopsTotal",
+     "type": "integer",
+     "label": "ピットストップ総数",
+     "unit": "回"
+    },
+    {
+     "name": "stintCountTotal",
+     "type": "integer",
+     "label": "スティント総数",
+     "unit": "回"
+    },
+    {
+     "name": "retiredCount",
+     "type": "integer",
+     "label": "リタイア人数",
+     "unit": "人"
+    },
+    {
+     "name": "fastestLapMs",
+     "type": "integer",
+     "label": "ファステラップ",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "fastestLapDriver",
+     "type": "string",
+     "label": "ファステラップ記録者",
+     "unit": "ドライバー略称"
+    },
+    {
+     "name": "fastestLapNumber",
+     "type": "integer",
+     "label": "ファステラップの周回",
+     "unit": "周"
+    },
+    {
+     "name": "poleDriver",
+     "type": "string",
+     "label": "ポールポジション獲得者",
+     "unit": "決勝の Q3 最速タイム記録者"
+    },
+    {
+     "name": "poleLapMs",
+     "type": "number",
+     "label": "ポールタイム",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "winnerDriver",
+     "type": "string",
+     "label": "優勝ドライバー",
+     "unit": ""
+    },
+    {
+     "name": "winnerTeam",
+     "type": "string",
+     "label": "優勝チーム",
+     "unit": ""
+    },
+    {
+     "name": "raceControlMessages",
+     "type": "integer",
+     "label": "レースコントロールメッセージ数",
+     "unit": "件"
+    },
+    {
+     "name": "trackStatusEvents",
+     "type": "integer",
+     "label": "トラックステータス変更回数",
+     "unit": "回"
+    },
+    {
+     "name": "weatherSamples",
+     "type": "integer",
+     "label": "天気サンプル数",
+     "unit": "件"
+    },
+    {
+     "name": "avgAirTempC",
+     "type": "number",
+     "label": "気温（平均）",
+     "unit": "℃"
+    },
+    {
+     "name": "minAirTempC",
+     "type": "number",
+     "label": "気温（最小）",
+     "unit": "℃"
+    },
+    {
+     "name": "maxAirTempC",
+     "type": "number",
+     "label": "気温（最大）",
+     "unit": "℃"
+    },
+    {
+     "name": "avgTrackTempC",
+     "type": "number",
+     "label": "路面温度（平均）",
+     "unit": "℃"
+    },
+    {
+     "name": "minTrackTempC",
+     "type": "number",
+     "label": "路面温度（最小）",
+     "unit": "℃"
+    },
+    {
+     "name": "maxTrackTempC",
+     "type": "number",
+     "label": "路面温度（最大）",
+     "unit": "℃"
+    },
+    {
+     "name": "avgHumidityPct",
+     "type": "number",
+     "label": "湿度（平均）",
+     "unit": "%"
+    },
+    {
+     "name": "minHumidityPct",
+     "type": "number",
+     "label": "湿度（最小）",
+     "unit": "%"
+    },
+    {
+     "name": "maxHumidityPct",
+     "type": "number",
+     "label": "湿度（最大）",
+     "unit": "%"
+    },
+    {
+     "name": "avgPressureHpa",
+     "type": "number",
+     "label": "気圧（平均）",
+     "unit": "hPa"
+    },
+    {
+     "name": "minPressureHpa",
+     "type": "number",
+     "label": "気圧（最小）",
+     "unit": "hPa"
+    },
+    {
+     "name": "maxPressureHpa",
+     "type": "number",
+     "label": "気圧（最大）",
+     "unit": "hPa"
+    },
+    {
+     "name": "avgWindSpeedMs",
+     "type": "number",
+     "label": "風速（平均）",
+     "unit": "m/s"
+    },
+    {
+     "name": "minWindSpeedMs",
+     "type": "number",
+     "label": "風速（最小）",
+     "unit": "m/s"
+    },
+    {
+     "name": "maxWindSpeedMs",
+     "type": "number",
+     "label": "風速（最大）",
+     "unit": "m/s"
+    },
+    {
+     "name": "rainfallTotalMm",
+     "type": "number",
+     "label": "降雨量の合計",
+     "unit": "mm"
+    },
+    {
+     "name": "rainfallSamples",
+     "type": "integer",
+     "label": "降雨が観測されたサンプル数",
+     "unit": "件"
+    },
+    {
+     "name": "isDry",
+     "type": "boolean",
+     "label": "ドライコンディション",
+     "unit": "降雨サンプルが 0 なら true"
+    },
+    {
+     "name": "trackStatus_yellowCount",
+     "type": "number",
+     "label": "イエロー状態の回数",
+     "unit": "回"
+    },
+    {
+     "name": "trackStatus_greenCount",
+     "type": "integer",
+     "label": "グリーン状態の回数",
+     "unit": "回"
+    },
+    {
+     "name": "trackStatus_redCount",
+     "type": "number",
+     "label": "赤旗の回数",
+     "unit": "回"
+    },
+    {
+     "name": "trackStatus_yellowSeconds",
+     "type": "number",
+     "label": "イエロー状態の合計時間",
+     "unit": "秒"
+    },
+    {
+     "name": "trackStatus_greenSeconds",
+     "type": "number",
+     "label": "グリーン状態の合計時間",
+     "unit": "秒"
+    },
+    {
+     "name": "trackStatus_redSeconds",
+     "type": "number",
+     "label": "赤旗の合計時間",
+     "unit": "秒"
+    },
+    {
+     "name": "telemetrySamplesTotal",
+     "type": "integer",
+     "label": "テレメトリサンプル総数",
+     "unit": "全ドライバー合計"
+    },
+    {
+     "name": "generatedAt",
+     "type": "string",
+     "label": "生成日時",
+     "unit": "UTC ISO8601"
+    },
+    {
+     "name": "source",
+     "type": "string",
+     "label": "データソース",
+     "unit": "FastF1 のバージョン"
+    },
+    {
+     "name": "trackStatus_virtual_safety_carCount",
+     "type": "number",
+     "label": "バーチャルセーフティカー回数",
+     "unit": "回"
+    },
+    {
+     "name": "trackStatus_safety_carCount",
+     "type": "number",
+     "label": "セーフティカー出動回数",
+     "unit": "回"
+    },
+    {
+     "name": "trackStatus_virtual_safety_carSeconds",
+     "type": "number",
+     "label": "バーチャルセーフティカー時間",
+     "unit": "秒"
+    },
+    {
+     "name": "trackStatus_safety_carSeconds",
+     "type": "number",
+     "label": "セーフティカー走行時間",
+     "unit": "秒"
+    },
+    {
+     "name": "trackStatus_otherCount",
+     "type": "number",
+     "label": "その他の状態値（上記以外）の回数",
+     "unit": "回"
+    },
+    {
+     "name": "trackStatus_otherSeconds",
+     "type": "number",
+     "label": "その他の状態値の合計時間",
+     "unit": "秒"
+    }
+   ],
+   "csv": "sessions.csv",
+   "csvBytes": 167023,
+   "parquet": "sessions.parquet",
+   "parquetBytes": 91166
+  },
+  "stints": {
+   "label": "スティント単位（1スティント = 1行）",
+   "description": "同一タイヤの連続走行区間。スティント長とペースの関係を分析できる。",
+   "primaryKey": [
+    "sessionKey",
+    "driverNumber",
+    "stint"
+   ],
+   "rowCount": 15520,
+   "columns": [
+    {
+     "name": "sessionKey",
+     "type": "string",
+     "label": "セッションキー",
+     "unit": "全テーブルの外部キー。data/<slug>.json.gz の slug と同一"
+    },
+    {
+     "name": "year",
+     "type": "integer",
+     "label": "年",
+     "unit": "シーズン"
+    },
+    {
+     "name": "round",
+     "type": "integer",
+     "label": "ラウンド番号",
+     "unit": "その年の大会番号"
+    },
+    {
+     "name": "sessionType",
+     "type": "string",
+     "label": "セッション種別",
+     "unit": "R=決勝 / Q=予選 / S=スプリント / SQ=スプリント予選"
+    },
+    {
+     "name": "circuit",
+     "type": "string",
+     "label": "コース",
+     "unit": "location と同じ値。次元テーブルのキー"
+    },
+    {
+     "name": "driverNumber",
+     "type": "string",
+     "label": "カーナンバー",
+     "unit": "例 44"
+    },
+    {
+     "name": "driver",
+     "type": "string",
+     "label": "ドライバー略称",
+     "unit": "3文字（例 VER）"
+    },
+    {
+     "name": "teamName",
+     "type": "string",
+     "label": "チーム名",
+     "unit": ""
+    },
+    {
+     "name": "stint",
+     "type": "integer",
+     "label": "スティント番号",
+     "unit": "1 始まり"
+    },
+    {
+     "name": "compound",
+     "type": "string",
+     "label": "タイヤコンパウンド",
+     "unit": "SOFT / MEDIUM / HARD / INTERMEDIATE / WET"
+    },
+    {
+     "name": "startLap",
+     "type": "integer",
+     "label": "スティント開始周回",
+     "unit": "周"
+    },
+    {
+     "name": "endLap",
+     "type": "integer",
+     "label": "スティント終了周回",
+     "unit": "周"
+    },
+    {
+     "name": "stintLaps",
+     "type": "integer",
+     "label": "スティント周回数",
+     "unit": "周"
+    },
+    {
+     "name": "tyreAgeStartLaps",
+     "type": "number",
+     "label": "スティント開始時のタイヤ使用周回",
+     "unit": "周"
+    },
+    {
+     "name": "tyreAgeEndLaps",
+     "type": "number",
+     "label": "スティント終了時のタイヤ使用周回",
+     "unit": "周"
+    },
+    {
+     "name": "stintLapTimeTotalMs",
+     "type": "number",
+     "label": "スティント合計ラップタイム",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "stintAvgLapMs",
+     "type": "number",
+     "label": "スティント平均ラップタイム",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "stintBestLapMs",
+     "type": "number",
+     "label": "スティント中ベストラップ",
+     "unit": "ミリ秒"
+    }
+   ],
+   "csv": "stints.csv",
+   "csvBytes": 1517196,
+   "parquet": "stints.parquet",
+   "parquetBytes": 313506
+  },
+  "teams": {
+   "label": "チーム次元テーブル（1チーム = 1行）",
+   "description": "セッション結果表から導出したチームの通算成績。",
+   "primaryKey": [
+    "teamName"
+   ],
+   "rowCount": 21,
+   "columns": [
+    {
+     "name": "teamName",
+     "type": "string",
+     "label": "チーム名",
+     "unit": ""
+    },
+    {
+     "name": "teamId",
+     "type": "string",
+     "label": "チームID",
+     "unit": "F1 公式 ID"
+    },
+    {
+     "name": "teamColor",
+     "type": "string",
+     "label": "チームカラー",
+     "unit": "16進 RGB（# なし）"
+    },
+    {
+     "name": "firstYear",
+     "type": "integer",
+     "label": "初登場年",
+     "unit": ""
+    },
+    {
+     "name": "lastYear",
+     "type": "integer",
+     "label": "最終登場年",
+     "unit": ""
+    },
+    {
+     "name": "years",
+     "type": "integer",
+     "label": "登場年数",
+     "unit": "年"
+    },
+    {
+     "name": "sessionCount",
+     "type": "integer",
+     "label": "出走セッション数",
+     "unit": "件"
+    },
+    {
+     "name": "raceCount",
+     "type": "integer",
+     "label": "決勝出走数",
+     "unit": "件"
+    },
+    {
+     "name": "wins",
+     "type": "integer",
+     "label": "優勝数",
+     "unit": "回"
+    },
+    {
+     "name": "podiums",
+     "type": "integer",
+     "label": "表彰台回数",
+     "unit": "回"
+    },
+    {
+     "name": "pointsTotal",
+     "type": "number",
+     "label": "獲得ポイント合計",
+     "unit": "点"
+    },
+    {
+     "name": "retirements",
+     "type": "integer",
+     "label": "リタイア数",
+     "unit": "回"
+    },
+    {
+     "name": "drivers",
+     "type": "string",
+     "label": "出走ドライバー",
+     "unit": "出現したドライバー略称（時系列順）"
+    }
+   ],
+   "csv": "teams.csv",
+   "csvBytes": 1759,
+   "parquet": "teams.parquet",
+   "parquetBytes": 9720
+  },
+  "telemetry_stats": {
+   "label": "ドライバー × セッションのテレメトリ統計",
+   "description": "速度・スロットル・ブレーキ・DRS・ギア・加減速の分布統計（driver_session_features の内訳）。",
+   "primaryKey": [
+    "sessionKey",
+    "driverNumber"
+   ],
+   "rowCount": 8562,
+   "columns": [
+    {
+     "name": "sessionKey",
+     "type": "string",
+     "label": "セッションキー",
+     "unit": "全テーブルの外部キー。data/<slug>.json.gz の slug と同一"
+    },
+    {
+     "name": "year",
+     "type": "integer",
+     "label": "年",
+     "unit": "シーズン"
+    },
+    {
+     "name": "round",
+     "type": "integer",
+     "label": "ラウンド番号",
+     "unit": "その年の大会番号"
+    },
+    {
+     "name": "sessionType",
+     "type": "string",
+     "label": "セッション種別",
+     "unit": "R=決勝 / Q=予選 / S=スプリント / SQ=スプリント予選"
+    },
+    {
+     "name": "circuit",
+     "type": "string",
+     "label": "コース",
+     "unit": "location と同じ値。次元テーブルのキー"
+    },
+    {
+     "name": "driverNumber",
+     "type": "string",
+     "label": "カーナンバー",
+     "unit": "例 44"
+    },
+    {
+     "name": "driver",
+     "type": "string",
+     "label": "ドライバー略称",
+     "unit": "3文字（例 VER）"
+    },
+    {
+     "name": "teamName",
+     "type": "string",
+     "label": "チーム名",
+     "unit": ""
+    },
+    {
+     "name": "telemetrySamples",
+     "type": "number",
+     "label": "テレメトリサンプル数",
+     "unit": "件（詳細系列 2.0 秒間隔）"
+    },
+    {
+     "name": "telemetrySeconds",
+     "type": "number",
+     "label": "テレメトリ計測時間",
+     "unit": "秒"
+    },
+    {
+     "name": "speedMaxKmh",
+     "type": "number",
+     "label": "最高速度",
+     "unit": "km/h"
+    },
+    {
+     "name": "speedMinKmh",
+     "type": "number",
+     "label": "最低速度",
+     "unit": "km/h"
+    },
+    {
+     "name": "speedMeanKmh",
+     "type": "number",
+     "label": "平均速度",
+     "unit": "km/h"
+    },
+    {
+     "name": "speedP95Kmh",
+     "type": "number",
+     "label": "速度の95パーセンタイル",
+     "unit": "km/h"
+    },
+    {
+     "name": "speedOver300Seconds",
+     "type": "number",
+     "label": "300km/h 超で走行した時間",
+     "unit": "秒"
+    },
+    {
+     "name": "speedOver250Seconds",
+     "type": "number",
+     "label": "250km/h 超で走行した時間",
+     "unit": "秒"
+    },
+    {
+     "name": "speedOver200Seconds",
+     "type": "number",
+     "label": "200km/h 超で走行した時間",
+     "unit": "秒"
+    },
+    {
+     "name": "speedOver100Seconds",
+     "type": "number",
+     "label": "100km/h 超で走行した時間",
+     "unit": "秒"
+    },
+    {
+     "name": "throttleMeanPct",
+     "type": "number",
+     "label": "スロットル開度（平均）",
+     "unit": "%"
+    },
+    {
+     "name": "throttleP95Pct",
+     "type": "number",
+     "label": "スロットル開度（95パーセンタイル）",
+     "unit": "%"
+    },
+    {
+     "name": "throttleMaxPct",
+     "type": "number",
+     "label": "スロットル開度（最大）",
+     "unit": "%"
+    },
+    {
+     "name": "throttleOver50Seconds",
+     "type": "number",
+     "label": "スロットル50%超の時間",
+     "unit": "秒"
+    },
+    {
+     "name": "throttleZeroSeconds",
+     "type": "number",
+     "label": "スロットル0%の時間",
+     "unit": "秒"
+    },
+    {
+     "name": "brakeSeconds",
+     "type": "number",
+     "label": "ブレーキ使用時間",
+     "unit": "秒"
+    },
+    {
+     "name": "brakeRatioPct",
+     "type": "number",
+     "label": "ブレーキ使用率",
+     "unit": "%（計測時間に対する割合）"
+    },
+    {
+     "name": "drsZoneSeconds",
+     "type": "number",
+     "label": "DRSゾーン検知時間",
+     "unit": "秒"
+    },
+    {
+     "name": "drsOpenSeconds",
+     "type": "number",
+     "label": "DRS開放時間",
+     "unit": "秒"
+    },
+    {
+     "name": "drsOpenRatioPct",
+     "type": "number",
+     "label": "DRS開放率",
+     "unit": "%（DRSゾーン時間に対する割合）"
+    },
+    {
+     "name": "gearMax",
+     "type": "number",
+     "label": "最高ギア",
+     "unit": ""
+    },
+    {
+     "name": "gearMin",
+     "type": "number",
+     "label": "最低ギア",
+     "unit": ""
+    },
+    {
+     "name": "gearChanges",
+     "type": "number",
+     "label": "ギアチェンジ回数",
+     "unit": "回（サンプル間の変化数）"
+    },
+    {
+     "name": "accelMaxMs2",
+     "type": "number",
+     "label": "最大加速度",
+     "unit": "m/s^2"
+    },
+    {
+     "name": "accelP95Ms2",
+     "type": "number",
+     "label": "加速度の95パーセンタイル",
+     "unit": "m/s^2"
+    },
+    {
+     "name": "decelMaxMs2",
+     "type": "number",
+     "label": "最大減速度",
+     "unit": "m/s^2"
+    },
+    {
+     "name": "decelP05Ms2",
+     "type": "number",
+     "label": "減速度の5パーセンタイル",
+     "unit": "m/s^2"
+    },
+    {
+     "name": "stationarySeconds",
+     "type": "number",
+     "label": "停止状態の時間",
+     "unit": "秒"
+    },
+    {
+     "name": "offTrackSeconds",
+     "type": "number",
+     "label": "コース外走行の時間",
+     "unit": "秒"
+    },
+    {
+     "name": "onTrackSeconds",
+     "type": "number",
+     "label": "コース内走行の時間",
+     "unit": "秒"
+    },
+    {
+     "name": "hasPosition",
+     "type": "number",
+     "label": "位置データの有無",
+     "unit": "true のとき X/Y 座標とコース形状が得られる"
+    }
+   ],
+   "csv": "telemetry_stats.csv",
+   "csvBytes": 2048520,
+   "parquet": "telemetry_stats.parquet",
+   "parquetBytes": 723730
+  },
+  "track_status": {
+   "label": "トラックステータス変更（グリーン/イエロー/セーフティカー等）",
+   "description": "セッション中のコース状態変化の時系列。",
+   "primaryKey": [
+    "sessionKey",
+    "t"
+   ],
+   "rowCount": 4116,
+   "columns": [
+    {
+     "name": "sessionKey",
+     "type": "string",
+     "label": "セッションキー",
+     "unit": "全テーブルの外部キー。data/<slug>.json.gz の slug と同一"
+    },
+    {
+     "name": "year",
+     "type": "integer",
+     "label": "年",
+     "unit": "シーズン"
+    },
+    {
+     "name": "round",
+     "type": "integer",
+     "label": "ラウンド番号",
+     "unit": "その年の大会番号"
+    },
+    {
+     "name": "sessionType",
+     "type": "string",
+     "label": "セッション種別",
+     "unit": "R=決勝 / Q=予選 / S=スプリント / SQ=スプリント予選"
+    },
+    {
+     "name": "circuit",
+     "type": "string",
+     "label": "コース",
+     "unit": "location と同じ値。次元テーブルのキー"
+    },
+    {
+     "name": "t",
+     "type": "number",
+     "label": "セッション開始からの時刻",
+     "unit": "秒（0 =  lights out / セッション開始）"
+    },
+    {
+     "name": "code",
+     "type": "string",
+     "label": "トラックステータスコード",
+     "unit": "FastF1 のコード 1..7"
+    },
+    {
+     "name": "name",
+     "type": "string",
+     "label": "トラックステータス名",
+     "unit": "green / yellow / red / safety_car など"
+    },
+    {
+     "name": "label",
+     "type": "string",
+     "label": "トラックステータス（日本語）",
+     "unit": "グリーン / イエロー / セーフティカー など"
+    },
+    {
+     "name": "durationSeconds",
+     "type": "number",
+     "label": "状態の継続時間",
+     "unit": "秒"
+    }
+   ],
+   "csv": "track_status.csv",
+   "csvBytes": 250551,
+   "parquet": "track_status.parquet",
+   "parquetBytes": 53639
+  },
+  "tracks": {
+   "label": "コース次元テーブル（1サーキット = 1行）",
+   "description": "セッション表から導出したコース属性。周回数やコース長の統計を含む。",
+   "primaryKey": [
+    "circuit"
+   ],
+   "rowCount": 37,
+   "columns": [
+    {
+     "name": "circuit",
+     "type": "string",
+     "label": "コース",
+     "unit": "location と同じ値。次元テーブルのキー"
+    },
+    {
+     "name": "location",
+     "type": "string",
+     "label": "開催地",
+     "unit": "FastF1 の Location（通常はサーキット名）"
+    },
+    {
+     "name": "country",
+     "type": "string",
+     "label": "開催国",
+     "unit": ""
+    },
+    {
+     "name": "firstYear",
+     "type": "integer",
+     "label": "初登場年",
+     "unit": ""
+    },
+    {
+     "name": "lastYear",
+     "type": "integer",
+     "label": "最終登場年",
+     "unit": ""
+    },
+    {
+     "name": "years",
+     "type": "integer",
+     "label": "登場年数",
+     "unit": "年"
+    },
+    {
+     "name": "events",
+     "type": "integer",
+     "label": "開催大会数",
+     "unit": "件"
+    },
+    {
+     "name": "sessionCount",
+     "type": "integer",
+     "label": "出走セッション数",
+     "unit": "件"
+    },
+    {
+     "name": "avgTotalLaps",
+     "type": "number",
+     "label": "規定周回数の平均",
+     "unit": "周"
+    },
+    {
+     "name": "trackLengthMetersMedian",
+     "type": "number",
+     "label": "1周距離の中央値",
+     "unit": "メートル"
+    },
+    {
+     "name": "pitLaneMetersMedian",
+     "type": "number",
+     "label": "ピットレーン距離の中央値",
+     "unit": "メートル"
+    },
+    {
+     "name": "pitStopsAvgPerRace",
+     "type": "number",
+     "label": "決勝1戦あたり平均ピット回数",
+     "unit": "回"
+    },
+    {
+     "name": "fastestLapMsMin",
+     "type": "integer",
+     "label": "コース最速ラップ記録",
+     "unit": "ミリ秒"
+    },
+    {
+     "name": "avgAirTempC",
+     "type": "number",
+     "label": "気温（平均）",
+     "unit": "℃"
+    }
+   ],
+   "csv": "tracks.csv",
+   "csvBytes": 3161,
+   "parquet": "tracks.parquet",
+   "parquetBytes": 11944
+  },
+  "weather": {
+   "label": "天気サンプル（セッション時系列）",
+   "description": "FastF1 が取得した気温・路面温度・湿度・気圧・風・降雨の時系列。",
+   "primaryKey": [
+    "sessionKey",
+    "t"
+   ],
+   "rowCount": 48193,
+   "columns": [
+    {
+     "name": "sessionKey",
+     "type": "string",
+     "label": "セッションキー",
+     "unit": "全テーブルの外部キー。data/<slug>.json.gz の slug と同一"
+    },
+    {
+     "name": "year",
+     "type": "integer",
+     "label": "年",
+     "unit": "シーズン"
+    },
+    {
+     "name": "round",
+     "type": "integer",
+     "label": "ラウンド番号",
+     "unit": "その年の大会番号"
+    },
+    {
+     "name": "sessionType",
+     "type": "string",
+     "label": "セッション種別",
+     "unit": "R=決勝 / Q=予選 / S=スプリント / SQ=スプリント予選"
+    },
+    {
+     "name": "circuit",
+     "type": "string",
+     "label": "コース",
+     "unit": "location と同じ値。次元テーブルのキー"
+    },
+    {
+     "name": "t",
+     "type": "number",
+     "label": "セッション開始からの時刻",
+     "unit": "秒（0 =  lights out / セッション開始）"
+    },
+    {
+     "name": "rel",
+     "type": "number",
+     "label": "セッション開始からの時刻",
+     "unit": "秒"
+    },
+    {
+     "name": "airTemp",
+     "type": "number",
+     "label": "気温",
+     "unit": "℃"
+    },
+    {
+     "name": "trackTemp",
+     "type": "number",
+     "label": "路面温度",
+     "unit": "℃"
+    },
+    {
+     "name": "humidity",
+     "type": "number",
+     "label": "湿度",
+     "unit": "%"
+    },
+    {
+     "name": "pressure",
+     "type": "number",
+     "label": "気圧",
+     "unit": "hPa"
+    },
+    {
+     "name": "rainfall",
+     "type": "number",
+     "label": "降雨量",
+     "unit": "mm"
+    },
+    {
+     "name": "windSpeed",
+     "type": "number",
+     "label": "風速",
+     "unit": "m/s"
+    },
+    {
+     "name": "windDirection",
+     "type": "number",
+     "label": "風向",
+     "unit": "度"
+    }
+   ],
+   "csv": "weather.csv",
+   "csvBytes": 3867058,
+   "parquet": "weather.parquet",
+   "parquetBytes": 768898
+  }
+ }
+}

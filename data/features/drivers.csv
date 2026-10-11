@@ -1,0 +1,45 @@
+﻿driver,driverId,firstName,lastName,countryCode,firstYear,lastYear,years,sessionCount,raceCount,sprintCount,qualifyingCount,wins,podiums,poles,pointsTotal,retirements,teams,numbers,circuitCount,bestLapMsMin,speedMaxKmhMax
+VER,max_verstappen,Max,Verstappen,,2018,2026,9,426,188,30,190,69,124,60,3046.5,22,Red Bull Racing,"33,1,3",37,53433.0,358.0
+HAM,hamilton,Lewis,Hamilton,,2018,2026,9,424,187,30,189,43,90,35,2514.5,14,"Mercedes,Ferrari",44,37,62951.0,365.0
+LEC,leclerc,Charles,Leclerc,,2018,2026,9,426,188,30,190,9,54,28,1751.0,46,"Sauber,Ferrari",16,37,53613.0,362.0
+NOR,norris,Lando,Norris,,2019,2026,8,385,168,30,169,13,49,24,1500.0,41,McLaren,"4,1",36,54194.0,360.0
+RUS,russell,George,Russell,,2019,2026,8,385,168,30,169,8,32,16,1155.0,63,"Williams,Mercedes",63,36,53403.0,359.0
+SAI,sainz,Carlos,Sainz,,2018,2026,9,424,187,30,189,4,29,6,1142.5,64,"Renault,McLaren,Ferrari,Williams",55,37,53818.0,366.0
+PER,perez,Sergio,Perez,,2018,2026,8,362,162,24,164,6,32,3,1112.0,58,"Force India,Racing Point,Red Bull Racing,Cadillac",11,37,53787.0,366.0
+BOT,bottas,Valtteri,Bottas,,2018,2026,8,366,164,24,166,7,44,17,1057.0,68,"Mercedes,Alfa Romeo,Kick Sauber,Cadillac",77,37,53377.0,362.0
+PIA,piastri,Oscar,Piastri,AUS,2023,2026,4,215,86,24,87,9,28,10,835.0,14,McLaren,81,28,64554.0,367.0
+ALO,alonso,Fernando,Alonso,,2018,2026,7,350,150,30,152,0,9,0,538.0,67,"McLaren,Alpine,Aston Martin",14,35,64472.0,365.0
+GAS,gasly,Pierre,Gasly,,2018,2026,9,426,188,30,190,1,5,1,485.0,88,"Toro Rosso,Red Bull Racing,AlphaTauri,Alpine",10,37,53941.0,361.0
+ANT,antonelli,Andrea Kimi,Antonelli,,2025,2026,2,105,40,12,41,8,16,7,429.0,7,Mercedes,12,27,65052.0,358.0
+OCO,ocon,Esteban,Ocon,,2018,2026,8,382,166,30,168,1,4,0,386.0,82,"Force India,Racing Point,Renault,Alpine,Haas F1 Team",31,37,53995.0,366.0
+ALB,albon,Alexander,Albon,,2019,2026,7,336,145,27,146,0,2,0,313.0,68,"Toro Rosso,Red Bull Racing,Williams",23,36,54026.0,369.0
+STR,stroll,Lance,Stroll,,2018,2026,9,423,186,30,189,0,2,1,273.0,104,"Williams,Racing Point,Aston Martin",18,36,53840.0,361.0
+HUL,hulkenberg,Nico,Hulkenberg,,2018,2026,8,308,132,24,134,0,1,0,216.0,71,"Renault,Racing Point,Aston Martin,Haas F1 Team,Kick Sauber,Audi",27,34,64516.0,363.0
+HAD,hadjar,Isack,Hadjar,,2025,2026,2,97,37,11,38,0,3,0,146.0,15,"Racing Bulls,Red Bull Racing",6,26,65063.0,361.0
+TSU,tsunoda,Yuki,Tsunoda,,2021,2026,6,272,117,25,117,0,0,0,109.0,62,"AlphaTauri,RB,Racing Bulls,Red Bull Racing",22,31,64273.0,365.0
+LAW,lawson,Liam,Lawson,NZL,2023,2026,4,134,51,16,52,0,0,0,106.0,19,"AlphaTauri,RB,Red Bull Racing,Racing Bulls","40,30",27,64926.0,356.0
+BEA,bearman,Oliver,Bearman,GBR,2024,2026,3,113,43,13,44,0,0,0,65.0,16,"Ferrari,Haas F1 Team","38,50,87",27,65218.0,364.0
+LIN,arvid_lindblad,Arvid,Lindblad,,2026,2026,1,45,16,6,17,0,0,0,37.0,9,Racing Bulls,41,17,67007.0,353.0
+COL,colapinto,Franco,Colapinto,ARG,2024,2026,3,113,43,13,44,0,0,0,32.0,26,"Williams,Alpine",43,25,65278.0,363.0
+BOR,bortoleto,Gabriel,Bortoleto,,2025,2026,2,105,40,12,41,0,0,0,29.0,21,"Kick Sauber,Audi",5,27,64846.0,360.0
+DOO,doohan,Jack,Doohan,AUS,2024,2025,2,18,7,2,7,0,0,0,0.0,4,Alpine,"61,7",7,76315.0,352.0
+RIC,ricciardo,Daniel,Ricciardo,,2018,2024,7,270,127,12,128,3,5,2,504.0,57,"Red Bull Racing,Renault,McLaren,AlphaTauri,RB",3,34,53871.0,360.0
+MAG,kevin_magnussen,Kevin,Magnussen,,2018,2024,6,268,124,14,125,0,0,1,115.0,78,Haas F1 Team,20,34,54705.0,360.0
+ZHO,zhou,Guanyu,Zhou,CHN,2022,2024,3,157,68,15,68,0,0,0,16.0,40,"Alfa Romeo,Kick Sauber",24,25,65818.0,360.0
+SAR,sargeant,Logan,Sargeant,USA,2023,2024,2,84,36,9,36,0,0,0,1.0,24,Williams,2,24,65856.0,362.0
+DEV,de_vries,Nyck,De Vries,NED,2022,2023,2,24,11,2,11,0,0,0,2.0,7,"Williams,AlphaTauri","45,21",11,65974.0,350.0
+VET,vettel,Sebastian,Vettel,,2018,2022,5,207,100,6,101,6,23,7,661.0,37,"Ferrari,Aston Martin",5,33,54175.0,365.0
+MSC,mick_schumacher,Mick,Schumacher,,2021,2022,2,94,44,6,44,0,0,0,12.0,32,Haas F1 Team,47,27,65427.0,353.0
+LAT,latifi,Nicholas,Latifi,,2020,2022,3,128,61,6,61,0,0,0,9.0,43,Williams,6,29,54796.0,357.0
+RAI,raikkonen,Kimi,Räikkönen,,2018,2021,4,159,78,2,79,1,11,0,290.0,45,"Ferrari,Alfa Romeo Racing",7,29,54963.0,366.0
+GIO,giovinazzi,Antonio,Giovinazzi,,2019,2021,3,123,60,3,60,0,0,0,21.0,44,Alfa Romeo Racing,99,29,54377.0,370.0
+KUB,kubica,Robert,Kubica,,2019,2021,2,47,23,1,23,0,0,0,1.0,20,"Williams,Alfa Romeo Racing",88,22,66206.0,354.0
+MAZ,mazepin,Nikita,Mazepin,,2021,2021,1,47,22,3,22,0,0,0,0.0,20,Haas F1 Team,9,21,65951.0,356.0
+KVY,kvyat,Daniil,Kvyat,,2019,2020,2,76,38,0,38,0,1,0,69.0,22,"Toro Rosso,AlphaTauri",26,26,53856.0,362.0
+GRO,grosjean,Romain,Grosjean,,2018,2020,3,113,56,0,57,0,0,0,47.0,40,Haas F1 Team,8,27,63892.0,363.0
+AIT,aitken,Jack,Aitken,,2020,2020,1,2,1,0,1,0,0,0,0.0,0,Williams,89,1,54892.0,342.0
+FIT,pietro_fittipaldi,Pietro,Fittipaldi,,2020,2020,1,4,2,0,2,0,0,0,0.0,1,Haas F1 Team,51,2,55426.0,338.0
+VAN,vandoorne,Stoffel,Vandoorne,,2018,2018,1,41,20,0,21,0,0,0,12.0,15,McLaren,2,21,65271.0,357.0
+ERI,ericsson,Marcus,Ericsson,,2018,2018,1,41,20,0,21,0,0,0,9.0,16,Sauber,9,21,65479.0,358.0
+HAR,brendon_hartley,Brendon,Hartley,,2018,2018,1,41,20,0,21,0,0,0,4.0,18,Toro Rosso,28,21,65366.0,351.0
+SIR,sirotkin,Sergey,Sirotkin,,2018,2018,1,41,20,0,21,0,0,0,0.0,18,Williams,35,21,65322.0,363.0

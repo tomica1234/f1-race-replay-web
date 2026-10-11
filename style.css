@@ -16,6 +16,10 @@
 
 * { box-sizing: border-box; }
 
+/* `hidden` must win over the display rules below (the no-position overlay is
+   display:flex, so without this it would stay visible on every session). */
+[hidden] { display: none !important; }
+
 html, body {
   margin: 0;
   background: var(--bg);
@@ -42,8 +46,20 @@ a { color: #9ecbff; }
 .brand-text { font-weight: 700; letter-spacing: 2px; font-size: 15px; }
 .brand-text small { display: block; font-weight: 500; letter-spacing: .5px; color: var(--muted); font-size: 11px; }
 
-.session-picker { display: flex; align-items: center; gap: 8px; }
+.session-picker { display: grid; gap: 6px; }
 .session-picker label { color: var(--muted); font-size: 12px; }
+.catalog-nav { display: flex; align-items: center; gap: 6px; }
+.catalog-nav select { min-width: 300px; max-width: 560px; }
+.catalog-nav button {
+  background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
+  border-radius: 6px; padding: 7px 10px; font-size: 13px; cursor: pointer;
+}
+.catalog-nav button:hover { border-color: #46516a; }
+.catalog-filters { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.catalog-filters select { padding: 5px 8px; font-size: 12px; max-width: 150px; }
+.catalog-count { color: var(--muted); font-size: 11.5px; }
+optgroup { background: #10141c; color: var(--text); font-weight: 700; }
+option { background: var(--panel-2); }
 select, input[type="range"], button { font-family: inherit; }
 select {
   background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
@@ -91,8 +107,16 @@ select {
 }
 
 .canvas-wrap { position: relative; }
+.canvas-wrap.no-track { min-height: min(40vh, 360px); }
 #trackCanvas { width: 100%; height: min(56vh, 620px); display: block; border-radius: 8px; background: #0d1015; }
 .hint { position: absolute; left: 10px; bottom: 8px; color: var(--muted); font-size: 11px; opacity: .8; }
+.no-position {
+  position: absolute; inset: 10px; display: flex; flex-direction: column; gap: 8px;
+  align-items: center; justify-content: center; text-align: center; padding: 20px;
+  background: rgba(13, 16, 21, .94); border: 1px dashed #3a4356; border-radius: 10px;
+  color: var(--muted); font-size: 12.5px; line-height: 1.8;
+}
+.no-position strong { color: var(--text); font-size: 15px; }
 
 .transport { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
 .btn {
@@ -166,6 +190,44 @@ select {
 #controlLog li.future { opacity: .4; }
 #controlLog .t { color: var(--muted); font-variant-numeric: tabular-nums; flex: 0 0 74px; }
 #controlLog .flag { font-weight: 700; flex: 0 0 90px; }
+
+.export-wrap { display: grid; gap: 18px; }
+.export-block h3 { margin: 0 0 6px; font-size: 14px; }
+.export-note { color: var(--muted); font-size: 12px; line-height: 1.8; margin: 0 0 10px; }
+.export-note code, .feature-card code {
+  background: #10141c; border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px;
+  font-size: 11px; color: #cfd6e4;
+}
+.export-note a { color: #7fb4ff; }
+.export-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 8px; }
+.export-btn {
+  display: flex; flex-direction: column; gap: 3px; text-align: left; cursor: pointer;
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px;
+  padding: 9px 11px; color: var(--text); font-size: 13px; text-decoration: none;
+}
+.export-btn small { color: var(--muted); font-size: 11px; }
+.export-btn:hover:not([disabled]) { border-color: var(--accent); }
+.export-btn[disabled] { opacity: .4; cursor: not-allowed; }
+.export-btn.raw { border-style: dashed; }
+
+.feature-card { border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2); margin-bottom: 8px; }
+.feature-card > summary {
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline;
+  padding: 9px 11px; cursor: pointer; font-size: 13px; list-style: none;
+}
+.feature-card > summary::-webkit-details-marker { display: none; }
+.feature-card > summary::before { content: "▸"; color: var(--muted); }
+.feature-card[open] > summary::before { content: "▾"; }
+.feature-card > summary b { font-size: 13.5px; }
+.feature-meta { color: var(--muted); font-size: 11px; }
+.feature-links { margin-left: auto; display: flex; gap: 10px; }
+.feature-links a { color: #7fb4ff; font-size: 11.5px; }
+.feature-desc { color: var(--muted); font-size: 12px; padding: 0 12px 8px; line-height: 1.8; }
+.schema-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.schema-table th, .schema-table td { text-align: left; padding: 5px 12px; border-top: 1px solid #1c212c; }
+.schema-table th { color: var(--muted); font-size: 11px; }
+.schema-table td:first-child { width: 250px; }
+.schema-table td:nth-child(2) { width: 74px; color: var(--muted); }
 
 .footer {
   display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;

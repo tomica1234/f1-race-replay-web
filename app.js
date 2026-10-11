@@ -112,6 +112,12 @@ const state = {
   trackStatus: [],
   raceControl: [],
   sessions: [],
+  catalog: [],
+  filters: { year: "", type: "" },
+  currentSlug: "",
+  pitStops: [],
+  weather: [],
+  schema: null,
   data: null,
 
   duration: 0,
@@ -226,9 +232,16 @@ function computeStandings(t) {
     if (dp >= 1) {
       r.gap = `+${Math.floor(dp)}L`;
     } else if (dp > 0.0005) {
+      const lapMeters = (state.meta && state.meta.trackLengthMeters) ||
+        (state.track ? state.track.lengthMeters : null);
+      if (!lapMeters) {
+        // 1 周距離が分からないセッション（位置データなし）は周数の割合で表示
+        r.gap = `+${dp.toFixed(2)}L`;
+        return;
+      }
       const det = sampleDetail(r.s, t);
       const v = Math.max(15, det.speed / 3.6);
-      r.gap = fmtGap((dp * state.track.lengthMeters) / v);
+      r.gap = fmtGap((dp * lapMeters) / v);
     } else {
       r.gap = "+0.0";
     }
@@ -461,6 +474,13 @@ function drawCars(c, tf) {
 
 function renderTrack() {
   const canvas = $("#trackCanvas");
+  if (!state.track) {
+    // 位置データを持たないセッション（2018年 R1-R2）は地図を描かない
+    if (canvas.width || canvas.height) { canvas.width = 1; canvas.height = 1; }
+    state.tf = null;
+    state.trackCacheKey = "";
+    return;
+  }
   const rect = canvas.getBoundingClientRect();
   const dpr = window.devicePixelRatio || 1;
   const w = Math.max(1, Math.floor(rect.width * dpr));
@@ -1037,12 +1057,138 @@ function selectDriver(abbr, on) {
   renderBoard(state.standingsCache || computeStandings(state.t));
 }
 
+/* ------------------------------------------------------------- exports */
+
+const SESSION_EXPORTS = [
+  { key: "meta", label: "セッション情報", build: () => [state.meta] },
+  { key: "drivers", label: "出走ドライバー / 公式結果", build: () => state.drivers },
+  { key: "laps", label: "ラップ（周回ごと）", build: () => flattenByDriver(state.laps) },
+  { key: "stints", label: "スティント（連続走行）", build: () => flattenByDriver(state.stints) },
+  { key: "pitStops", label: "ピットストップ", build: () => flattenByDriver(state.pitStops) },
+  { key: "trackStatus", label: "トラックステータス", build: () => state.trackStatus },
+  { key: "raceControl", label: "レースコントロール", build: () => state.raceControl },
+  { key: "weather", label: "天気（気温 / 路面 / 風 / 降雨）", build: () => state.weather },
+  { key: "telemetry", label: "テレメトリ（選択中ドライバー）", build: () => telemetryRows() },
+];
+
+function flattenByDriver(obj) {
+  const rows = [];
+  for (const [abbr, list] of Object.entries(obj || {})) {
+    for (const r of list || []) rows.push(Object.assign({ driver: abbr }, r));
+  }
+  return rows;
+}
+
+function telemetryRows() {
+  const dtMain = state.meta.dtMain;
+  const dtDetail = state.meta.dtDetail;
+  const rows = [];
+  for (const abbr of state.selected) {
+    const s = state.series[abbr];
+    if (!s || !s.speed) continue;
+    const nMain = s.x.length;
+    for (let i = 0; i < s.speed.length; i++) {
+      const t = Number((i * dtDetail).toFixed(2));
+      const m = clamp(Math.round(t / dtMain), 0, Math.max(0, nMain - 1));
+      rows.push({
+        driver: abbr, t, lap: s.lap[m], rel: s.rel[m], x: s.x[m], y: s.y[m], status: s.st[m],
+        speed: s.speed[i], gear: s.gear[i], drs: s.drs[i], throttle: s.throttle[i], brake: s.brake[i],
+      });
+    }
+  }
+  return rows;
+}
+
+function csvText(rows) {
+  if (!rows.length) return "";
+  const cols = [];
+  for (const r of rows) {
+    for (const k of Object.keys(r)) if (!cols.includes(k)) cols.push(k);
+  }
+  const cell = (v) => {
+    if (v === null || v === undefined) return "";
+    const s = typeof v === "object" ? JSON.stringify(v) : String(v);
+    return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const lines = [cols.join(",")];
+  for (const r of rows) lines.push(cols.map((c) => cell(r[c])).join(","));
+  return "\uFEFF" + lines.join("\r\n");   // BOM 付き = Excel で文字化けしない
+}
+
+function downloadText(filename, text) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], { type: "text/csv;charset=utf-8" }));
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+
+function renderSessionExports() {
+  const box = $("#sessionExportButtons");
+  if (!box || !state.meta) return;
+  const entry = state.sessions.find((x) => x.slug === state.currentSlug) || {};
+  $("#exportSessionFile").textContent = `data/${state.currentSlug}.json.gz`;
+  box.innerHTML = SESSION_EXPORTS.map((spec) => {
+    let n = 0;
+    try { n = (spec.build() || []).length; } catch (err) { n = 0; }
+    return `<button class="export-btn" data-key="${spec.key}"${n ? "" : " disabled"}>` +
+      `<b>${spec.label}</b><small>${n.toLocaleString()} 行 → ${state.currentSlug}-${spec.key}.csv</small></button>`;
+  }).join("") +
+    `<a class="export-btn raw" href="./data/${entry.featuresFile || `features/raw/${state.currentSlug}.json.gz`}" download="features-${state.currentSlug}.json.gz">` +
+    `<b>このセッションの特徴量テーブル</b><small>JSON (gzip) → 全10卓の生データ</small></a>`;
+}
+
+async function renderFeatureTables() {
+  const box = $("#featureTables");
+  if (!box || box.dataset.loaded === "1") return;
+  let schema;
+  try {
+    schema = await fetchJsonAny("./data/features/schema.json");
+  } catch (err) {
+    $("#featuresSummary").textContent =
+      "特徴量テーブルはまだ生成されていません。build_data.py --bulk の後に build_features.py を実行してください。";
+    return;
+  }
+  state.schema = schema;
+  const tables = Object.entries(schema.tables || {});
+  const rows = tables.reduce((n, [, t]) => n + (t.rowCount || 0), 0);
+  const bytes = tables.reduce((n, [, t]) => n + (t.csvBytes || 0) + (t.parquetBytes || 0), 0);
+  $("#featuresSummary").innerHTML =
+    `${tables.length} 卓 / ${rows.toLocaleString()} 行 / ${(bytes / 1e6).toFixed(1)} MB（CSV + Parquet 合計）` +
+    `<br><code>schema.json</code> には上の表がそのまま書き込まれています。` +
+    `<a href="./data/features/schema.json" download="f1-features-schema.json">スキーマをダウンロード</a> · ` +
+    `<a href="./data/index.json" download="f1-session-index.json">セッション一覧 (index.json)</a>`;
+
+  box.innerHTML = tables.map(([name, t]) => {
+    const links = [
+      t.csv ? `<a href="./data/features/${t.csv}" download="${t.csv}">CSV ${(t.csvBytes / 1024).toFixed(0)} KB</a>` : "",
+      t.parquet ? `<a href="./data/features/${t.parquet}" download="${t.parquet}">Parquet ${(t.parquetBytes / 1024).toFixed(0)} KB</a>` : "",
+    ].filter(Boolean).join(" ");
+    const cols = (t.columns || []).map((c) =>
+      `<tr><td><code>${c.name}</code></td><td>${c.type}</td><td>${escapeHtml(
+        [c.label, c.unit].filter(Boolean).join("（") + (c.unit ? "）" : ""))}</td></tr>`).join("");
+    return `<details class="feature-card"><summary>` +
+      `<b>${escapeHtml(t.label || name)}</b> <code>${name}</code>` +
+      `<span class="feature-meta">${(t.rowCount || 0).toLocaleString()} 行 · primary key: ${(t.primaryKey || []).join(", ")}</span>` +
+      `<span class="feature-links">${links}</span></summary>` +
+      `<p class="feature-desc">${escapeHtml(t.description || "")}</p>` +
+      `<table class="schema-table"><thead><tr><th>列</th><th>型</th><th>意味 / 単位</th></tr></thead>` +
+      `<tbody>${cols}</tbody></table></details>`;
+  }).join("");
+  box.dataset.loaded = "1";
+}
+
 function setTab(tab) {
   state.tab = tab;
   $$("#analysisTabs button").forEach((b) => b.classList.toggle("active", b.dataset.tab === tab));
   $("#logWrap").hidden = tab !== "control";
-  state.chartDirty = true;
+  $("#exportWrap").hidden = tab !== "export";
+  $("#chartWrap").hidden = tab === "export";
   if (tab === "control") renderControlLog();
+  if (tab === "export") { renderSessionExports(); renderFeatureTables(); }
+  state.chartDirty = true;
 }
 
 function buildLapMarkers() {
@@ -1060,38 +1206,129 @@ function buildLapMarkers() {
   state.lapMarkers = rows.map((r) => r.t0).filter((v) => Number.isFinite(v)).sort((a, b) => a - b);
 }
 
-/* ------------------------------------------------------------- boot */
+/* ------------------------------------------------------------- catalog */
+
+const TYPE_LABELS = { R: "決勝", Q: "予選", S: "スプリント", SQ: "スプリント予選" };
+
+function filteredSessions() {
+  const { year, type } = state.filters;
+  return state.sessions.filter((s) =>
+    (!year || String(s.year) === year) && (!type || s.sessionType === type));
+}
+
+function renderCatalog() {
+  const list = filteredSessions();
+  state.catalog = list;
+  const sel = $("#sessionSelect");
+
+  const groups = [];
+  const byKey = new Map();
+  for (const s of list) {
+    const key = `${s.year}-${s.round}`;
+    let g = byKey.get(key);
+    if (!g) { g = { head: s, rows: [] }; byKey.set(key, g); groups.push(g); }
+    g.rows.push(s);
+  }
+
+  sel.innerHTML = groups.map((g) => {
+    const h = g.head;
+    const label = `${h.year} R${String(h.round).padStart(2, "0")}  ${h.country}（${h.location}） ${h.date}`;
+    const opts = g.rows.map((s) => {
+      const flags = [`${s.drivers}台`, `${s.totalLaps}周`, `${s.sizeKB} KB`];
+      if (!s.hasPosition) flags.push("位置データなし");
+      return `<option value="${s.slug}">${TYPE_LABELS[s.sessionType] || s.sessionType} — ${flags.join(" / ")}</option>`;
+    }).join("");
+    return `<optgroup label="${escapeHtml(label)}">${opts}</optgroup>`;
+  }).join("");
+
+  const years = [...new Set(state.sessions.map((s) => s.year))].sort((a, b) => b - a);
+  const yearSel = $("#yearFilter");
+  if (yearSel.dataset.ready !== "1") {
+    yearSel.innerHTML = `<option value="">全シーズン</option>` +
+      years.map((y) => `<option value="${y}">${y}年</option>`).join("");
+    yearSel.dataset.ready = "1";
+  }
+  yearSel.value = state.filters.year;
+  $("#typeFilter").value = state.filters.type;
+
+  const sizeMB = list.reduce((n, s) => n + (s.sizeKB || 0), 0) / 1024;
+  $("#catalogCount").textContent =
+    `${list.length} / ${state.sessions.length} セッション · 転送量 ${sizeMB.toFixed(0)} MB`;
+
+  if (state.currentSlug && list.some((s) => s.slug === state.currentSlug)) {
+    sel.value = state.currentSlug;
+  } else if (list.length) {
+    sel.value = list[list.length - 1].slug;   // 既定は最新のセッション
+  }
+  return list;
+}
+
+function stepSession(dir) {
+  const list = state.catalog.length ? state.catalog : filteredSessions();
+  if (!list.length) return;
+  let i = list.findIndex((s) => s.slug === state.currentSlug);
+  if (i < 0) i = list.length - 1;
+  const next = list[clamp(i + dir, 0, list.length - 1)];
+  if (next && next.slug !== state.currentSlug) loadSession(next.slug).catch(showError);
+}
+
+/* gzip 配信（.json.gz）を優先し、無い場合は素の .json にフォールバックする */
+async function fetchJsonAny(url) {
+  let res = await fetch(url);
+  if (!res.ok && url.endsWith(".json.gz")) {
+    res = await fetch(url.slice(0, -3));
+  }
+  if (!res.ok) throw new Error(`データが読み込めません (${res.status})`);
+  if (!url.endsWith(".gz")) return await res.json();
+  if (typeof DecompressionStream === "undefined") {
+    throw new Error("このブラウザは gzip 展開（DecompressionStream）に対応していません。Chrome 100 以降 / Safari 16.4 以降で開いてください。");
+  }
+  const buf = new Uint8Array(await res.arrayBuffer());
+  const stream = new Blob([buf]).stream().pipeThrough(new DecompressionStream("gzip"));
+  return JSON.parse(await new Response(stream).text());
+}
 
 async function loadIndex() {
-  const res = await fetch("./data/index.json");
-  if (!res.ok) throw new Error(`index.json が読み込めません (${res.status})`);
-  const idx = await res.json();
+  const idx = await fetchJsonAny("./data/index.json");
   state.sessions = idx.sessions || [];
-  const sel = $("#sessionSelect");
-  sel.innerHTML = state.sessions
-    .map((s) => `<option value="${s.slug}">${s.label} — ${s.eventName}</option>`)
-    .join("");
   if (!state.sessions.length) {
     $("#eventName").textContent = "データがありません";
+    $("#eventSub").textContent = "build_data.py --bulk でデータを生成してください。";
     return null;
   }
-  return state.sessions[0];
+  const list = renderCatalog();
+  return list[list.length - 1];
 }
 
 async function loadSession(slug) {
-  const s = state.sessions.find((x) => x.slug === slug) || state.sessions[0];
-  const res = await fetch(`./data/${s.file}`);
-  if (!res.ok) throw new Error(`セッションデータが読み込めません (${res.status})`);
-  const data = await res.json();
+  const s = state.sessions.find((x) => x.slug === slug);
+  if (!s) throw new Error(`セッション ${slug} が見つかりません`);
+  const data = await fetchJsonAny(`./data/${s.file}`);
+  state.currentSlug = s.slug;
+  $("#sessionSelect").value = s.slug;
+
   state.data = data;
   state.meta = data.meta;
-  state.track = data.track;
+  state.track = data.track || null;
   state.drivers = data.drivers;
   state.driverByAbbr = new Map(data.drivers.map((d) => [d.abbr, d]));
   state.series = data.series;
   state.laps = data.laps;
   state.stints = data.stints;
+  state.pitStops = data.pitStops || {};
+  state.weather = data.weather || [];
   state.duration = data.meta.duration;
+
+  const hasPos = Boolean(state.track);
+  $("#noPositionNotice").hidden = hasPos;
+  $("#trackCanvas").hidden = !hasPos;
+  $("#trackHint").hidden = !hasPos;
+  // the canvas keeps the wrapper's height; without it the notice would collapse
+  // the box and overflow onto the transport controls below
+  $("#trackCanvas").parentElement.classList.toggle("no-track", !hasPos);
+  state.tf = null;
+  state.trackCacheKey = "";
+  state.trackCanvasCache = null;
 
   // trackStatus に終了時刻がない行は次の開始まで
   const ts = (data.trackStatus || []).slice().sort((a, b) => a.t - b.t);
@@ -1102,12 +1339,16 @@ async function loadSession(slug) {
   state.trackStatus = ts;
   state.raceControl = (data.raceControl || []).slice().sort((a, b) => a.t - b.t);
 
+  const label = TYPE_LABELS[data.meta.sessionType] || data.meta.sessionType;
   $("#eventName").textContent = data.meta.eventName;
   $("#eventSub").textContent =
-    `${data.meta.location}（${data.meta.country}） · ${data.meta.date} · ${data.meta.sessionType} · ${data.meta.totalLaps} Laps`;
+    `${data.meta.year} R${String(data.meta.round).padStart(2, "0")} · ${label} · ` +
+    `${data.meta.location}（${data.meta.country}） · ${data.meta.date} · ${data.meta.totalLaps} Laps`;
+  const pit = data.meta.pitLaneMeters ? ` / pit ${data.meta.pitLaneMeters.toFixed(0)} m` : "";
   $("#buildInfo").textContent =
-    `exported ${data.meta.generatedAt} · ${(JSON.stringify(data).length / 1e6).toFixed(2)} MB · ` +
-    `track ${data.track.lengthMeters.toFixed(0)} m · ${data.drivers.length} cars · FastF1`;
+    `exported ${data.meta.generatedAt} · ${s.sizeKB} KB (gzip) / ${(JSON.stringify(data).length / 1e6).toFixed(2)} MB · ` +
+    (hasPos ? `track ${data.track.lengthMeters.toFixed(0)} m${pit}` : "位置データなし") +
+    ` · ${data.drivers.length} cars · ${data.meta.source || "FastF1"}`;
   $("#clockTotal").textContent = fmtClock(state.duration);
 
   buildLapMarkers();
@@ -1122,11 +1363,11 @@ async function loadSession(slug) {
 
   renderChips();
   renderStatusTimeline();
-  setTab("lapTimes");
+  renderSessionExports();
+  setTab(state.tab === "export" ? "export" : "lapTimes");
   state.standingsCache = computeStandings(0);
   renderBoard(state.standingsCache);
   state.chartDirty = true;
-  state.trackCacheKey = "";
   seek(0);
 }
 
@@ -1148,6 +1389,29 @@ function wireEvents() {
   scrub.addEventListener("input", () => seek((Number(scrub.value) / 100) * state.duration));
 
   $("#sessionSelect").addEventListener("change", (e) => loadSession(e.target.value).catch(showError));
+  $("#btnPrevSession").addEventListener("click", () => stepSession(-1));
+  $("#btnNextSession").addEventListener("click", () => stepSession(1));
+  $("#yearFilter").addEventListener("change", (e) => {
+    state.filters.year = e.target.value;
+    const list = renderCatalog();
+    if (list.length) loadSession(list[list.length - 1].slug).catch(showError);
+  });
+  $("#typeFilter").addEventListener("change", (e) => {
+    state.filters.type = e.target.value;
+    const list = renderCatalog();
+    if (list.length) loadSession(list[list.length - 1].slug).catch(showError);
+  });
+  $("#sessionExportButtons").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-key]");
+    if (!b || b.disabled) return;
+    const spec = SESSION_EXPORTS.find((x) => x.key === b.dataset.key);
+    if (!spec) return;
+    let rows = [];
+    try { rows = spec.build() || []; } catch (err) { showError(err); return; }
+    if (!rows.length) return;
+    downloadText(`${state.currentSlug}-${spec.key}.csv`, csvText(rows));
+    b.querySelector("small").textContent = `${rows.length.toLocaleString()} 行を書き出しました`;
+  });
   $("#analysisTabs").addEventListener("click", (e) => {
     const b = e.target.closest("button[data-tab]");
     if (b) setTab(b.dataset.tab);

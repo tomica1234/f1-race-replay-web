@@ -1,0 +1,21 @@
+{
+ "failedAt": "2026-10-11T04:36:22+00:00",
+ "failures": [
+  {
+   "task": [
+    2018,
+    14,
+    "R"
+   ],
+   "error": "2018 R14 R: DataNotLoadedError: The data you are trying to access has not been loaded yet. See `Session.load`"
+  },
+  {
+   "task": [
+    2026,
+    17,
+    "R"
+   ],
+   "error": "2026 R17 R: DataNotLoadedError: The data you are trying to access has not been loaded yet. See `Session.load`"
+  }
+ ]
+}
